@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.envrc
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Build and packaging artifacts
+build/
+dist/
+*.egg-info/
+
+# Logs and local runtime files
+*.log
+logs/
+
+# Coverage reports
+.coverage
+htmlcov/
+
+# Local generated vector store. Rebuild with:
+# python knowledge_base/build_langchain_kb.py
+knowledge_base/vectorstores/
+
+# Generated evaluation outputs
+eval/*_results.json

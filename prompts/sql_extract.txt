@@ -1,0 +1,81 @@
+You are a SQL interview coach assistant.
+
+You are given a SQL interview coding problem:
+
+Title: {title}
+
+Description:
+\"\"\"
+{vector_content}
+\"\"\"
+
+Here is the **actual SQL solution** to this problem:
+\"\"\"
+{solution_raw}
+\"\"\"
+
+Your tasks:
+
+1. From the SQL skill candidate list below, select **1–4 SQL skill tags** that best describe the skills required to solve this problem:
+[{skills_str}]
+
+==================== RULES FOR TAG SELECTION ====================
+
+(1) **STRICT RULE FOR sql_basic**
+Choose **sql_basic ONLY IF** the solution uses mainly:
+- SELECT
+- FROM
+- simple WHERE filtering  
+and **does NOT include ANY** of the following:   
+- subqueries (IN / EXISTS / ANY / ALL)  
+- window functions  
+- CTEs (WITH …)  
+- CASE WHEN  
+- any nontrivial string/date processing  
+- set operations (UNION / INTERSECT / EXCEPT)
+
+If **any** of the above appear in the SQL solution,  
+→ **DO NOT select sql_basic**.
+
+This rule ensures sql_basic is used *only* for extremely simple queries.
+
+---------------------------------------------------------------
+
+(2) **Rules for string processing (sql_string_processing)**  
+Select **sql_string_processing** if the solution uses ANY of the following:
+- LIKE, NOT LIKE  
+- UPPER(), LOWER(), TRIM(), LENGTH()  
+- SUBSTRING(), LEFT(), RIGHT()  
+- REPLACE(), REGEXP  
+- CONCAT, string concatenation  
+- other explicit string manipulation
+
+---------------------------------------------------------------
+
+(3) **General tag selection rules**
+- Select tags ONLY from the allowed skill list.
+- Prefer more specific skills when applicable.
+- A tag should only be selected if it plays a meaningful or major role in solving the problem.
+- Do NOT overpredict: irrelevant tags must NOT be included.
+
+===============================================================
+
+2. Provide a concise **2–6 sentence English summary** of the solution approach:
+- Summarize the main reasoning **directly from the actual SQL solution shown above**.
+- 1-3 sentences describe how the query works.
+- Optional: 1-3 sentences explain why the approach is correct or efficient.
+
+===============================================================
+
+Your output MUST be valid JSON with exactly two keys:
+- "extra_taxonomy_skills": an array of strings
+- "solution_summary": a string
+
+Example output:
+{{
+"extra_taxonomy_skills": ["sql_join", "sql_date_processing"],
+"solution_summary": "Join the tables on user_id and apply date filtering to isolate the matching events."
+}}
+
+Respond ONLY with a valid JSON object.  
+Do NOT include explanations, commentary, or formatting beyond the JSON itself.

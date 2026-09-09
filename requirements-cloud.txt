@@ -1,0 +1,12 @@
+streamlit==1.52.2
+openai==2.13.0
+python-dotenv==1.0.1
+langgraph
+langchain
+langchain-openai
+langchain-qdrant
+qdrant-client
+rank-bm25
+pandas==2.3.3
+numpy
+pydantic==2.12.5

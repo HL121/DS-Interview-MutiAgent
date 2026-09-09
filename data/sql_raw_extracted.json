@@ -1,0 +1,1742 @@
+[
+  {
+    "vector_content": "Table: Product\nTable: Sales\nproduct_id is a foreign key to Product table.\nWrite an SQL query that reports the products that were only sold in spring 2019. That is, between 2019-01-01 and 2019-03-31 inclusive.\nThe query result format is in the following example:\nProduct table:\nSales table:\nResult table:\nThe product with id 1 was only sold in spring 2019 while the other two were sold after.\nSolution\nselect distinct a.product_id, product_name from sales a join product b on a.product_id = b.product_id where a.product_id\nin\n(select product_id from sales where sale_date >= '2019-01-01' and sale_date <= '2019-03-31')\nand\na.product_id not in\n(select product_id from sales where sale_date > '2019-03-31' or sale_date < '2019-01-01')",
+    "solution_raw": "select distinct a.product_id, product_name from sales a join product b on a.product_id = b.product_id where a.product_id \nin\n(select product_id from sales where sale_date >= '2019-01-01' and sale_date <= '2019-03-31')\nand\na.product_id not in \n(select product_id from sales where sale_date > '2019-03-31' or sale_date < '2019-01-01')",
+    "metadata": {
+      "id": "SQL_1",
+      "title": "Sales Analysis 3",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/sales-analysis-3/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Sales%20Analysis%203.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Product\nTable: Sales\nproduct_id is a foreign key to Product table.\nWrite an SQL query that reports the buyers who have bought S8 but not iPhone. Note that S8 and iPhone are products present in the Product table.\nThe query result format is in the following example:\nProduct table:\nSales table:\nResult table:\nThe buyer with id 1 bought an S8 but didn't buy an iPhone. The buyer with id 3 bought both.\nSolution\nSelect distinct a.buyer_id\nfrom sales a join\nproduct b\non a.product_id = b.product_id\nwhere a.buyer_id in\n(Select a.buyer_id from sales a join product b on a.product_id = b.product_id where b.product_name = 'S8')\nand\na.buyer_id not in (Select a.buyer_id from sales a join product b on a.product_id = b.product_id where b.product_name = 'iPhone')",
+    "solution_raw": "Select distinct a.buyer_id\nfrom sales a join\nproduct b\non a.product_id = b.product_id\nwhere a.buyer_id in\n(Select a.buyer_id from sales a join product b on a.product_id = b.product_id where b.product_name = 'S8') \nand\na.buyer_id not in (Select a.buyer_id from sales a join product b on a.product_id = b.product_id where b.product_name = 'iPhone')",
+    "metadata": {
+      "id": "SQL_2",
+      "title": "Sales Analysis 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/sales-analysis-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Sales%20Analysis%202.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Ads\nA company is running Ads and wants to calculate the performance of each Ad.\nPerformance of the Ad is measured using Click-Through Rate (CTR) where:\nWrite an SQL query to find the ctr of each Ad.\nThe query result format is in the following example:\nAds table:\nResult table:\nfor ad_id = 1, ctr = (2/(2+1)) * 100 = 66.67\nfor ad_id = 2, ctr = (1/(1+2)) * 100 = 33.33\nfor ad_id = 3, ctr = (1/(1+1)) * 100 = 50.00\nfor ad_id = 5, ctr = 0.00, Note that ad_id = 5 has no clicks or views.\nNote that we don't care about Ignored Ads.\nSolution\nwith t1 as(\nselect ad_id, sum(case when action in ('Clicked') then 1 else 0 end) as clicked\nfrom ads\ngroup by ad_id\n)\n, t2 as\n(\nSelect ad_id as ad, sum(case when action in ('Clicked','Viewed') then 1 else 0 end) as total\nfrom ads\ngroup by ad_id\n)\nSelect a.ad_id, coalesce(round((clicked +0.0)/nullif((total +0.0),0)*100,2),0) as ctr\nfrom\n(\nselect *\nfrom t1 join t2\non t1.ad_id = t2.ad) a\norder by ctr desc, ad_id",
+    "solution_raw": "with t1 as(\nselect ad_id, sum(case when action in ('Clicked') then 1 else 0 end) as clicked\nfrom ads\ngroup by ad_id\n)\n\n, t2 as\n(\nSelect ad_id as ad, sum(case when action in ('Clicked','Viewed') then 1 else 0 end) as total\nfrom ads\ngroup by ad_id\n)\n\nSelect a.ad_id, coalesce(round((clicked +0.0)/nullif((total +0.0),0)*100,2),0) as ctr\nfrom\n(\nselect *\nfrom t1 join t2\non t1.ad_id = t2.ad) a\norder by ctr desc, ad_id",
+    "metadata": {
+      "id": "SQL_3",
+      "title": "Ads Performance",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/ads-performance/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Ads%20performance.sql"
+    }
+  },
+  {
+    "vector_content": "In social network like Facebook or Twitter, people send friend requests and accept others’ requests as well. Now given two tables as below:\nTable: friend_request\nTable: request_accepted\nWrite a query to find the overall acceptance rate of requests rounded to 2 decimals, which is the number of acceptance divide the number of requests.\nFor the sample data above, your query should return the following result.\nNote:\nIt is possible that a sender sends multiple requests to the same receiver, and a request could be accepted more than once. In this case, the ‘duplicated’ requests or acceptances are only counted once.\nIf there is no requests at all, you should return 0.00 as the accept_rate.\nExplanation: There are 4 unique accepted requests, and there are 5 requests in total.\nSo the rate is 0.80.\nSolution\nwith t1 as\n(\nselect distinct sender_id, send_to_id\nfrom friend_request\n), t2 as\n(\nselect distinct requester_id, accepter_id\nfrom request_accepted\n)\nSelect\nifnull((\nselect distinct\nround((select count(*) from t2) / ( select count(*) from t1),2) from t1,t2\n),0) 'accept_rate'",
+    "solution_raw": "with t1 as\n(\n\tselect distinct sender_id, send_to_id\n\tfrom friend_request\n), t2 as\n(\n\tselect distinct requester_id, accepter_id\n\tfrom request_accepted\n)\n\nSelect \nifnull((\n        select distinct\n        round((select count(*) from t2) / ( select count(*) from t1),2) from t1,t2\n    ),0) 'accept_rate'",
+    "metadata": {
+      "id": "SQL_4",
+      "title": "Friend Requests 1",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/friend-requests-1/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Friend%20Requests%201.sql"
+    }
+  },
+  {
+    "vector_content": "Several friends at a cinema ticket office would like to reserve consecutive available seats.\nCan you help to query all the consecutive available seats order by the seat_id using the following cinema table?\nYour query should return the following result for the sample case above.\nNote:\nThe seat_id is an auto increment int, and free is bool ('1' means free, and '0' means occupied.).\nConsecutive available seats are more than 2(inclusive) seats consecutively available.\nSolution\nSelect seat_id\nfrom(\nselect seat_id, free,\nlead(free,1) over() as next,\nlag(free,1) over() as prev\nfrom cinema) a\nwhere a.free=True and (next = True or prev=True)\norder by seat_id",
+    "solution_raw": "Select seat_id\nfrom(\nselect seat_id, free,\nlead(free,1) over() as next,\nlag(free,1) over() as prev\nfrom cinema) a\nwhere a.free=True and (next = True or prev=True)\norder by seat_id",
+    "metadata": {
+      "id": "SQL_5",
+      "title": "Consecutive Available Seats",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/consecutive-available-seats/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Consecutive%20available%20seats.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Product\nTable: Sales\nproduct_id is a foreign key to Product table.\nWrite an SQL query that reports the best seller by total sales price, If there is a tie, report them all.\nThe query result format is in the following example:\nProduct table:\nSales table:\nResult table:\nBoth sellers with id 1 and 3 sold products with the most total price of 2800.\nSolution\nSelect a.seller_id\nfrom\n(select seller_id,\nrank() over(order by sum(price) desc) as rk\nfrom sales\ngroup by seller_id) a\nwhere a.rk=1",
+    "solution_raw": "Select a.seller_id\nfrom\n(select seller_id, \nrank() over(order by sum(price) desc) as rk\nfrom sales\ngroup by seller_id) a\nwhere a.rk=1",
+    "metadata": {
+      "id": "SQL_6",
+      "title": "Sales Analysis 1",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/sales-analysis-1/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Sales%20Analysis%201.sql"
+    }
+  },
+  {
+    "vector_content": "A country is big if it has an area of bigger than 3 million square km or a population of more than 25 million.\nWrite a SQL solution to output big countries' name, population and area.\nFor example, according to the above table, we should output:\nSolution\nSelect name, population, area\nfrom world\nwhere population > 25000000 OR area>3000000",
+    "solution_raw": "Select name, population, area\nfrom world\nwhere population > 25000000 OR area>3000000",
+    "metadata": {
+      "id": "SQL_7",
+      "title": "Big Countries",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/big-countries/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Big%20Countries.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Employees\nTable: EmployeeUNI\nWrite an SQL query to show the unique ID of each user, If a user doesn't have a unique ID replace just show null.\nThe query result format is in the following example:\nEmployees table:\nEmployeeUNI table:\nEmployeeUNI table:\nAlice and Bob don't have a unique ID, We will show null instead.\nThe unique ID of Meir is 2.\nThe unique ID of Winston is 3.\nThe unique ID of Jonathan is 1.\nSolution\nselect unique_id, name\nfrom employees e\nleft join\nemployeeuni u\non e.id = u.id\norder by e.id",
+    "solution_raw": "select unique_id, name\nfrom employees e\nleft join\nemployeeuni u\non e.id = u.id\norder by e.id",
+    "metadata": {
+      "id": "SQL_8",
+      "title": "Replace Employee Id With Unique Identifier",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/replace-employee-id-with-unique-identifier/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Replace%20employee%20id%20with%20unique%20identifier.sql"
+    }
+  },
+  {
+    "vector_content": "Write a query to find the shortest distance between two points in these points.\nThe shortest distance is '1' obviously, which is from point '-1' to '0'. So the output is as below:\nSolution\nselect min(abs(abs(a.x)-abs(a.next_closest))) as shortest\nfrom(\nselect *,\nlead(x) over(order by x) as next_closest\nfrom point) a",
+    "solution_raw": "select min(abs(abs(a.x)-abs(a.next_closest))) as shortest\nfrom(\nselect *,\nlead(x) over(order by x) as next_closest\nfrom point) a",
+    "metadata": {
+      "id": "SQL_9",
+      "title": "Shortest Distance",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/shortest-distance/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Shortest%20Distance.sql"
+    }
+  },
+  {
+    "vector_content": "Write an SQL query to find for each date, the number of distinct products sold and their names.\nThe sold-products names for each date should be sorted lexicographically.\nThe query result format is in the following example.\nActivities table:\nResult table:\nFor 2020-05-30, Sold items were (Headphone, Basketball, T-shirt), we sort them lexicographically and separate them by comma.\nFor 2020-06-01, Sold items were (Pencil, Bible), we sort them lexicographically and separate them by comma.\nFor 2020-06-02, Sold item is (Mask), we just return it.\nSolution\nselect sell_date, count(distinct product) as num_sold, group_concat(distinct product) as products\nfrom activities\ngroup by 1\norder by 1",
+    "solution_raw": "select sell_date, count(distinct product) as num_sold, group_concat(distinct product) as products\nfrom activities\ngroup by 1\norder by 1",
+    "metadata": {
+      "id": "SQL_10",
+      "title": "Group Sold Products By The Date",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/group-sold-products-by-the-date/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Group%20sold%20products%20by%20the%20date.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Users\nname is the name of the user.\nTable: Rides\nuser_id is the id of the user who travelled the distance \"distance\".\nWrite an SQL query to report the distance travelled by each user.\nif two or more users travelled the same distance, order them by their name in ascending order.\nThe query result format is in the following example.\nUsers table:\nRides table:\nResult table:\nElvis and Lee travelled 450 miles, Elvis is the top traveller as his name is alphabetically smaller than Lee.\nBob, Jonathan, Alex and Alice have only one ride and we just order them by the total distances of the ride.\nDonald didn't have any rides, the distance travelled by him is 0.\nSolution\nSelect U.name as name, coalesce(sum(R.distance),0) as travelled_distance\nfrom Users U left join Rides R\non R.user_id = U.id\ngroup by name\nOrder by travelled_distance desc, name",
+    "solution_raw": "Select U.name as name, coalesce(sum(R.distance),0) as travelled_distance \nfrom Users U left join Rides R\non R.user_id = U.id\ngroup by name\nOrder by travelled_distance desc, name",
+    "metadata": {
+      "id": "SQL_11",
+      "title": "Top Travellers",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/top-travellers/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Top%20Travellers.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Employee\nWrite an SQL query to find the team size of each of the employees.\nThe query result format is in the following example:\nEmployee Table:\nResult table:\nEmployees with Id 1,2,3 are part of a team with team_id = 8.\nEmployees with Id 4 is part of a team with team_id = 7.\nEmployees with Id 5,6 are part of a team with team_id = 9.\nSolution\nSelect employee_id, b.team_size\nfrom employee e\njoin\n(\nSelect team_id, count(team_id) as team_size\nfrom employee\ngroup by team_id) b\non e.team_id = b.team_id",
+    "solution_raw": "Select employee_id, b.team_size\nfrom employee e\njoin \n(\nSelect team_id, count(team_id) as team_size\nfrom employee\ngroup by team_id) b\non e.team_id = b.team_id",
+    "metadata": {
+      "id": "SQL_12",
+      "title": "Find The Team Size",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/find-the-team-size/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Find%20the%20team%20size.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Activity\nNote that each session belongs to exactly one user.\nWrite an SQL query to find the average number of sessions per user for a period of 30 days ending 2019-07-27 inclusively, rounded to 2 decimal places. The sessions we want to count for a user are those with at least one activity in that time period.\nThe query result format is in the following example:\nActivity table:\nResult table:\nUser 1 and 2 each had 1 session in the past 30 days while user 3 had 2 sessions so the average is (1 + 1 + 2) / 3 = 1.33.\nSolution\nselect ifnull(round(avg(a.num),2),0) as average_sessions_per_user\nfrom (\nselect count(distinct session_id) as num\nfrom activity\nwhere activity_date between '2019-06-28' and '2019-07-27'\ngroup by user_id) a",
+    "solution_raw": "select ifnull(round(avg(a.num),2),0) as average_sessions_per_user\nfrom (\nselect count(distinct session_id) as num\nfrom activity\nwhere activity_date between '2019-06-28' and '2019-07-27'\ngroup by user_id) a",
+    "metadata": {
+      "id": "SQL_13",
+      "title": "User Activity For Past 30 Days 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/user-activity-for-past-30-days-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/User%20Activity%20for%20past%2030%20days%202.sql"
+    }
+  },
+  {
+    "vector_content": "Suppose that a website contains two tables,\nTable: Customers.\nTable: Orders.\nUsing the above tables as example, return the following:\nSolution\nSelect Name as Customers\nfrom Customers\nwhere id != All(select c.id\nfrom Customers c, Orders o\nwhere c.id = o.Customerid)",
+    "solution_raw": "Select Name as Customers\nfrom Customers\nwhere id != All(select c.id\n                from Customers c, Orders o\n                where c.id = o.Customerid)",
+    "metadata": {
+      "id": "SQL_14",
+      "title": "Customers Who Never Order",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/customers-who-never-order/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Customers%20who%20never%20order.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Views\nNote that equal author_id and viewer_id indicate the same person.\nWrite an SQL query to find all the authors that viewed at least one of their own articles, sorted in ascending order by their id.\nThe query result format is in the following example:\nViews table:\nResult table:\nSolution\nselect distinct author_id as id\nfrom views\nwhere author_id = viewer_id\norder by author_id",
+    "solution_raw": "select distinct author_id as id\nfrom views\nwhere author_id = viewer_id\norder by author_id",
+    "metadata": {
+      "id": "SQL_15",
+      "title": "Article Views",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/article-views/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Article%20views.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Activity\nNote that each session belongs to exactly one user.\nWrite an SQL query to find the daily active user count for a period of 30 days ending 2019-07-27 inclusively. A user was active on some day if he/she made at least one activity on that day.\nThe query result format is in the following example:\nActivity table:\nResult table:\nNote that we do not care about days with zero active users.\nSolution\nSelect activity_date as day, count(distinct user_id) as active_users\nfrom activity\nwhere activity_date > '2019-06-26' and activity_date < '2019-07-27'\ngroup by activity_date",
+    "solution_raw": "Select activity_date as day, count(distinct user_id) as active_users\nfrom activity\nwhere activity_date > '2019-06-26' and activity_date < '2019-07-27'\ngroup by activity_date",
+    "metadata": {
+      "id": "SQL_16",
+      "title": "User Activity For Past 30 Days 1",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/user-activity-for-past-30-days-1/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/User%20activity%20for%20past%2030%20days%201.sql"
+    }
+  },
+  {
+    "vector_content": "Write a query to return the list of customers NOT referred by the person with id '2'.\nFor the sample data above, the result is:\nSolution\nSelect name\nfrom customer\nwhere referee_id != 2\nor referee_id is NULL",
+    "solution_raw": "Select name\nfrom customer \nwhere referee_id != 2\nor referee_id is NULL",
+    "metadata": {
+      "id": "SQL_17",
+      "title": "Find Customer Refree",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/find-customer-refree/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Find%20Customer%20Refree.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Prices\nFor each product_id there will be no two overlapping periods. That means there will be no two intersecting periods for the same product_id.\nTable: UnitsSold\nWrite an SQL query to find the average selling price for each product.\naverage_price should be rounded to 2 decimal places.\nThe query result format is in the following example:\nPrices table:\nUnitsSold table:\nResult table:\nAverage selling price = Total Price of Product / Number of products sold.\nAverage selling price for product 1 = ((100 * 5) + (15 * 20)) / 115 = 6.96\nAverage selling price for product 2 = ((200 * 15) + (30 * 30)) / 230 = 16.96\nSolution\nSelect d.product_id, round((sum(price*units)+0.00)/(sum(units)+0.00),2) as average_price\nfrom(\nSelect *\nfrom prices p\nnatural join\nunitssold u\nwhere u.purchase_date between p.start_date and p.end_date) d\ngroup by d.product_id",
+    "solution_raw": "Select d.product_id, round((sum(price*units)+0.00)/(sum(units)+0.00),2) as average_price\nfrom(\nSelect *\nfrom prices p\nnatural join \nunitssold u\nwhere u.purchase_date between p.start_date and p.end_date) d\ngroup by d.product_id",
+    "metadata": {
+      "id": "SQL_18",
+      "title": "Average Selling Price",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/average-selling-price/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Average%20selling%20price.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Project\nemployee_id is a foreign key to Employee table.\nTable: Employee\nWrite an SQL query that reports the average experience years of all the employees for each project, rounded to 2 digits.\nThe query result format is in the following example:\nProject table:\nEmployee table:\nResult table:\nThe average experience years for the first project is (3 + 2 + 1) / 3 = 2.00 and for the second project is (3 + 2) / 2 = 2.50\nSolution\nSelect a.project_id, round(sum(b.experience_years)/count(b.employee_id),2) as average_years\nfrom project as a\njoin\nemployee as b\non a.employee_id=b.employee_id\ngroup by a.project_id",
+    "solution_raw": "Select a.project_id, round(sum(b.experience_years)/count(b.employee_id),2) as average_years\nfrom project as a\njoin\nemployee as b\non a.employee_id=b.employee_id\ngroup by a.project_id",
+    "metadata": {
+      "id": "SQL_19",
+      "title": "Project Employees 1",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/project-employees-1/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Project%20Employees%201.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Sessions\nduration is the time in seconds that a user has visited the application.\nYou want to know how long a user visits your application. You decided to create bins of \"[0-5>\", \"[5-10>\", \"[10-15>\" and \"15 minutes or more\" and count the number of sessions on it.\nWrite an SQL query to report the (bin, total) in any order.\nThe query result format is in the following example.\nSessions table:\nResult table:\nFor session_id 1, 2 and 3 have a duration greater or equal than 0 minutes and less than 5 minutes.\nFor session_id 4 has a duration greater or equal than 5 minutes and less than 10 minutes.\nThere are no session with a duration greater or equial than 10 minutes and less than 15 minutes.\nFor session_id 5 has a duration greater or equal than 15 minutes.\nSolution 2\n(Select '[0-5>' as bin,\nsum(case when duration/60 < 5 then 1 else 0 end) as total from Sessions)\nunion\n(Select '[5-10>' as bin,\nsum(case when ((duration/60 >= 5) and (duration/60 < 10)) then 1 else 0 end) as total from Sessions)\nunion\n(Select '[10-15>' as bin,\nsum(case when ((duration/60 >= 10) and (duration/60 < 15)) then 1 else 0 end) as total from Sessions)\nunion\n(Select '15 or more' as bin,\nsum(case when duration/60 >= 15 then 1 else 0 end) as total from Sessions)",
+    "solution_raw": "(Select '[0-5>' as bin, \n sum(case when duration/60 < 5 then 1 else 0 end) as total from Sessions)\n union\n(Select '[5-10>' as bin, \n sum(case when ((duration/60 >= 5) and (duration/60 < 10)) then 1 else 0 end) as total from Sessions)\n union\n(Select '[10-15>' as bin, \n sum(case when ((duration/60 >= 10) and (duration/60 < 15)) then 1 else 0 end) as total from Sessions)\n union\n(Select '15 or more' as bin, \n sum(case when duration/60 >= 15 then 1 else 0 end) as total from Sessions)",
+    "metadata": {
+      "id": "SQL_20",
+      "title": "Create Session Bar Chart",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/create-session-bar-chart/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Create%20Session%20bar%20chart.sql"
+    }
+  },
+  {
+    "vector_content": "Given a Weather table, write a SQL query to find all dates' Ids with higher temperature compared to its previous (yesterday's) dates.\nFor example, return the following Ids for the above Weather table:\nSolution\nselect a.Id\nfrom weather a, weather b\nwhere a.Temperature>b.Temperature and  datediff(a.recorddate,b.recorddate)=1",
+    "solution_raw": "select a.Id\nfrom weather a, weather b\nwhere a.Temperature>b.Temperature and  datediff(a.recorddate,b.recorddate)=1",
+    "metadata": {
+      "id": "SQL_21",
+      "title": "Rising Temperature",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/rising-temperature/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Rising%20Temperature.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Project\nemployee_id is a foreign key to Employee table.\nTable: Employee\nWrite an SQL query that reports all the projects that have the most employees.\nThe query result format is in the following example:\nProject table:\nEmployee table:\nResult table:\nThe first project has 3 employees while the second one has 2.\nSolution\nselect a.project_id\nfrom(\nselect project_id,\nrank() over(order by count(employee_id) desc) as rk\nfrom project\ngroup by project_id) a\nwhere a.rk = 1",
+    "solution_raw": "select a.project_id\nfrom(\nselect project_id,\nrank() over(order by count(employee_id) desc) as rk\nfrom project\ngroup by project_id) a\nwhere a.rk = 1",
+    "metadata": {
+      "id": "SQL_22",
+      "title": "Project Employees 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/project-employees-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Project%20Employees%202.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Actions\nWrite an SQL query that reports the number of posts reported yesterday for each report reason. Assume today is 2019-07-05.\nThe query result format is in the following example:\nActions table:\nResult table:\nNote that we only care about report reasons with non zero number of reports.\nSolution\nSelect extra as report_reason, count(distinct post_id) as report_count\nfrom actions\nwhere action_date = DATE_SUB(\"2019-07-5\", INTERVAL 1 DAY) and action='report'\ngroup by extra",
+    "solution_raw": "Select extra as report_reason, count(distinct post_id) as report_count\nfrom actions\nwhere action_date = DATE_SUB(\"2019-07-5\", INTERVAL 1 DAY) and action='report'\ngroup by extra",
+    "metadata": {
+      "id": "SQL_23",
+      "title": "Reported Posts",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/reported-posts/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Reported%20posts.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Activity\nEach row is a record of a player who logged in and played a number of games (possibly 0) before logging out on some day using some device.\nWrite a SQL query that reports the device that is first logged in for each player.\nThe query result format is in the following example:\nActivity table:\nResult table:\nSolution\nWith table1 as\n(\nSelect player_id, device_id,\nRank() OVER(partition by player_id\norder by event_date) as rk\nFrom Activity\n)\nSelect t.player_id, t.device_id\nfrom table1 as t\nwhere t.rk=1",
+    "solution_raw": "With table1 as\n(\n   Select player_id, device_id,\n   Rank() OVER(partition by player_id\n               order by event_date) as rk\n   From Activity\n)\nSelect t.player_id, t.device_id\nfrom table1 as t\nwhere t.rk=1",
+    "metadata": {
+      "id": "SQL_24",
+      "title": "Game Play Analysis 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/game-play-analysis-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Game%20play%20analysis%202.sql"
+    }
+  },
+  {
+    "vector_content": "Solution\nWith t1 as\n(\nSelect *,\nrow_number() over(partition by email order by id) as rk\nfrom person\n)\nDelete from person\nwhere id in (Select t1.id from t1 where t1.rk>1)",
+    "solution_raw": "With t1 as\n(\n Select *,\n    row_number() over(partition by email order by id) as rk\n    from person\n)\nDelete from person\nwhere id in (Select t1.id from t1 where t1.rk>1)",
+    "metadata": {
+      "id": "SQL_25",
+      "title": "Delete Duplicate Emails",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/delete-duplicate-emails/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Delete%20duplicate%20emails.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Sales\nproduct_id is a foreign key to Product table.\nNote that the price is per unit.\nTable: Product\nFor example:\nSales table:\nProduct table:\nResult table:\nSolution\nSelect a.product_name, b.year, b.price\nfrom product as a\njoin\nsales as b\non a.product_id = b.product_id",
+    "solution_raw": "Select a.product_name, b.year, b.price\nfrom product as a\njoin\nsales as b\non a.product_id = b.product_id",
+    "metadata": {
+      "id": "SQL_26",
+      "title": "Product Sales Analysis 1",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/product-sales-analysis-1/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Product%20Sales%20Analysis%201.sql"
+    }
+  },
+  {
+    "vector_content": "Every employee has an Id, and there is also a column for the manager Id.\nGiven the Employee table, write a SQL query that finds out employees who earn more than their managers.\nFor the above table, Joe is the only employee who earns more than his manager.\nSolution\nselect a.Name as Employee\nfrom employee a, employee b\nwhere a.salary>b.salary and a.managerid=b.id",
+    "solution_raw": "select a.Name as Employee\nfrom employee a, employee b\nwhere a.salary>b.salary and a.managerid=b.id",
+    "metadata": {
+      "id": "SQL_27",
+      "title": "Employees Earning More Than Their Managers",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/employees-earning-more-than-their-managers/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Employees%20earning%20more%20than%20their%20managers.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Activity\nEach row is a record of a player who logged in and played a number of games (possibly 0) before logging out on some day using some device.\nWrite an SQL query that reports the first login date for each player.\nThe query result format is in the following example:\nActivity table:\nResult table:\nSolution\nSelect player_id, min(event_date) as first_login\nfrom Activity\nGroup by player_id",
+    "solution_raw": "Select player_id, min(event_date) as first_login\nfrom Activity\nGroup by player_id",
+    "metadata": {
+      "id": "SQL_28",
+      "title": "Game Play Analysis 1",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/game-play-analysis-1/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Game%20Play%20Analysis%201.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Sales\nproduct_id is a foreign key to Product table.\nNote that the price is per unit.\nTable: Product\nWrite an SQL query that reports the total quantity sold for every product id.\nThe query result format is in the following example:\nSales table:\nProduct table:\nResult table:\nSolution\nSelect a.product_id, sum(a.quantity) as total_quantity\nfrom sales a\njoin\nproduct b\non a.product_id = b.product_id\ngroup by a.product_id",
+    "solution_raw": "Select a.product_id, sum(a.quantity) as total_quantity\nfrom sales a\njoin\nproduct b\non a.product_id = b.product_id\ngroup by a.product_id",
+    "metadata": {
+      "id": "SQL_29",
+      "title": "Product Sales Analysis 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/product-sales-analysis-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Product%20Sales%20Analysis%202.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Departments\nTable: Students\nWrite an SQL query to find the id and the name of all students who are enrolled in departments that no longer exists.\nThe query result format is in the following example:\nDepartments table:\nStudents table:\nResult table:\nJohn, Daiana, Steve and Jasmine are enrolled in departments 14, 33, 74 and 77 respectively.\ndepartment 14, 33, 74 and 77 doesn't exist in the Departments table.\nSolution\nSelect s.id, s.name\nfrom students s left join\ndepartments d\non s.department_id = d.id\nwhere d.name is null",
+    "solution_raw": "Select s.id, s.name\nfrom students s left join\ndepartments d\non s.department_id = d.id\nwhere d.name is null",
+    "metadata": {
+      "id": "SQL_30",
+      "title": "Students With Invalid Departments",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/students-with-invalid-departments/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Students%20with%20invalid%20departments.sql"
+    }
+  },
+  {
+    "vector_content": "A pupil Tim gets homework to identify whether three line segments could possibly form a triangle.\nHowever, this assignment is very heavy because there are hundreds of records to calculate.\nCould you help Tim by writing a query to judge whether these three sides can form a triangle,\nFor the sample data above, your query should return the follow result:\nSolution\nselect x, y, z,\ncase\nwhen x+y > z and x+z > y and  y+z > x  then 'Yes'\nwhen x=y and y=z then 'Yes'\nelse 'No'\nend as Triangle\nfrom triangle",
+    "solution_raw": "select x, y, z,\ncase \nwhen x+y > z and x+z > y and  y+z > x  then 'Yes' \nwhen x=y and y=z then 'Yes'\nelse 'No'\nend as Triangle\nfrom triangle",
+    "metadata": {
+      "id": "SQL_31",
+      "title": "Triangle Judgement",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/triangle-judgement/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Triangle%20Judgement.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Countries\nTable: Weather\nThe query result format is in the following example:\nCountries table:\nWeather table:\nResult table:\nWe know nothing about average weather_state in Spain in November\nso we don't include it in the result table.\nSolution\nSelect c.country_name,\ncase when avg(w.weather_state)<=15 then 'Cold'\nwhen avg(w.weather_state)>=25 then 'Hot'\nelse 'Warm'\nfrom weather w join\ncountries c\non w.country_id = c.country_id\nwhere month(day) = 11\ngroup by c.country_name",
+    "solution_raw": "Select c.country_name, \ncase when avg(w.weather_state)<=15 then 'Cold'\n     when avg(w.weather_state)>=25 then 'Hot'\nelse 'Warm'\nend as weather_type\nfrom weather w join\ncountries c\non w.country_id = c.country_id\nwhere month(day) = 11\ngroup by c.country_name",
+    "metadata": {
+      "id": "SQL_32",
+      "title": "Weather Type In Each Country",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/weather-type-in-each-country/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Weather%20type%20in%20each%20country.sql"
+    }
+  },
+  {
+    "vector_content": "Table: ActorDirector\nWrite a SQL query for a report that provides the pairs (actor_id, director_id) where the actor have cooperated with the director at least 3 times.\nExample:\nActorDirector table:\nResult table:\nThe only pair is (1, 1) where they cooperated exactly 3 times.\nSolution\nSelect actor_id, director_id\nfrom actordirector\ngroup by actor_id, director_id\nhaving count(*)>=3",
+    "solution_raw": "Select actor_id, director_id\nfrom actordirector\ngroup by actor_id, director_id\nhaving count(*)>=3",
+    "metadata": {
+      "id": "SQL_33",
+      "title": "Actors Who Cooperated With Directors Atleast Three Times",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/actors-who-cooperated-with-directors-atleast-three-times/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Actors%20who%20cooperated%20with%20Directors%20atleast%20three%20times.sql"
+    }
+  },
+  {
+    "vector_content": "Description\nGiven three tables: salesperson, company, orders.\nExample\nInput\nTable: salesperson\nTable: company\nTable: orders\noutput\nExplanation\nSolution\n# Takes higher time\n# Select distinct a.name\n# from(\n# select s.sales_id as sales, name\n# from salesperson s left join orders o\n# on s.sales_id = o.sales_id) a\n# where a.sales != all(select distinct sales_id from orders o join company c on o.com_id = c.com_id where o.com_id = any (select com_id from company where name = 'RED'))\n# Faster solution\nSELECT name\nFROM salesperson\nWHERE sales_id NOT IN (SELECT DISTINCT sales_id\nFROM orders\nWHERE com_id = (SELECT com_id\nFROM company\nWHERE name = 'RED')) ;",
+    "solution_raw": "# Takes higher time\n# Select distinct a.name  \n# from(\n# select s.sales_id as sales, name\n# from salesperson s left join orders o\n# on s.sales_id = o.sales_id) a\n# where a.sales != all(select distinct sales_id from orders o join company c on o.com_id = c.com_id where o.com_id = any (select com_id from company where name = 'RED'))\n\n# Faster solution\nSELECT name\nFROM salesperson\nWHERE sales_id NOT IN (SELECT DISTINCT sales_id\nFROM orders\nWHERE com_id = (SELECT com_id\nFROM company\nWHERE name = 'RED')) ;",
+    "metadata": {
+      "id": "SQL_34",
+      "title": "Sales Person",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/sales-person/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Sales%20Person.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL query to get the second highest salary from the Employee table.\nFor example, given the above Employee table, the query should return 200 as the second highest salary.\nIf there is no second highest salary, then the query should return null.\nSolution\nselect max(salary) as SecondHighestSalary\nfrom employee\nwhere salary ! = (Select max(salary)\nfrom employee)",
+    "solution_raw": "select max(salary) as SecondHighestSalary\nfrom employee\nwhere salary ! = (Select max(salary)\n                   from employee)",
+    "metadata": {
+      "id": "SQL_35",
+      "title": "Second Highest Salary",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/second-highest-salary/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Second%20highest%20salary.sql"
+    }
+  },
+  {
+    "vector_content": "Swap all f and m values (i.e., change all f values to m and vice versa) with\na single update statement and no intermediate temp table.\nNote that you must write a single update statement, DO NOT write any select statement for this problem.\nExample:\nSolution\nUpdate salary\nset sex = Case when sex = 'm' then 'f'\nwhen sex = 'f' then 'm'\nend;",
+    "solution_raw": "Update salary\nset sex = Case when sex = 'm' then 'f' \nwhen sex = 'f' then 'm'\nend;",
+    "metadata": {
+      "id": "SQL_36",
+      "title": "Swap Salary",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/swap-salary/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Swap%20Salary.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Delivery\nIf the preferred delivery date of the customer is the same as the order date then the order is called immediate otherwise it's called scheduled.\nWrite an SQL query to find the percentage of immediate orders in the table, rounded to 2 decimal places.\nThe query result format is in the following example:\nDelivery table:\nResult table:\nThe orders with delivery id 2 and 3 are immediate while the others are scheduled.\nSolution\nSelect\nRound(avg(case when order_date=customer_pref_delivery_date then 1 else 0 end)*100,2) as immediate_percentage\nfrom delivery",
+    "solution_raw": "Select \nRound(avg(case when order_date=customer_pref_delivery_date then 1 else 0 end)*100,2) as immediate_percentage\nfrom delivery",
+    "metadata": {
+      "id": "SQL_37",
+      "title": "Immediate Food Delivery",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/immediate-food-delivery/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Immediate%20food%20delivery.sql"
+    }
+  },
+  {
+    "vector_content": "Please list out all classes which have more than or equal to 5 students.\nFor example, the table:\nSolution\nselect class\nfrom courses\ngroup by class\nhaving count(distinct student)>=5",
+    "solution_raw": "select class\nfrom courses\ngroup by class\nhaving count(distinct student)>=5",
+    "metadata": {
+      "id": "SQL_38",
+      "title": "Classes More Than 5 Students",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/classes-more-than-5-students/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Classes%20more%20than%205%20students.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Department\nThe month has values in [\"Jan\",\"Feb\",\"Mar\",\"Apr\",\"May\",\"Jun\",\"Jul\",\"Aug\",\"Sep\",\"Oct\",\"Nov\",\"Dec\"].\nThe query result format is in the following example:\nDepartment table:\nResult table:\nSolution\nselect id,\nsum(if(month='Jan',revenue,null)) as Jan_Revenue,\nsum(if(month='Feb',revenue,null)) as Feb_Revenue,\nsum(if(month='Mar',revenue,null)) as Mar_Revenue,\nsum(if(month='Apr',revenue,null)) as Apr_Revenue,\nsum(if(month='May',revenue,null)) as May_Revenue,\nsum(if(month='Jun',revenue,null)) as Jun_Revenue,\nsum(if(month='Jul',revenue,null)) as Jul_Revenue,\nsum(if(month='Aug',revenue,null)) as Aug_Revenue,\nsum(if(month='Sep',revenue,null)) as Sep_Revenue,\nsum(if(month='Oct',revenue,null)) as Oct_Revenue,\nsum(if(month='Nov',revenue,null)) as Nov_Revenue,\nsum(if(month='Dec',revenue,null)) as Dec_Revenue\nfrom Department\ngroup by id",
+    "solution_raw": "select id,\nsum(if(month='Jan',revenue,null)) as Jan_Revenue,\nsum(if(month='Feb',revenue,null)) as Feb_Revenue,\nsum(if(month='Mar',revenue,null)) as Mar_Revenue,\nsum(if(month='Apr',revenue,null)) as Apr_Revenue,\nsum(if(month='May',revenue,null)) as May_Revenue,\nsum(if(month='Jun',revenue,null)) as Jun_Revenue,\nsum(if(month='Jul',revenue,null)) as Jul_Revenue,\nsum(if(month='Aug',revenue,null)) as Aug_Revenue,\nsum(if(month='Sep',revenue,null)) as Sep_Revenue,\nsum(if(month='Oct',revenue,null)) as Oct_Revenue,\nsum(if(month='Nov',revenue,null)) as Nov_Revenue,\nsum(if(month='Dec',revenue,null)) as Dec_Revenue\nfrom Department\ngroup by id",
+    "metadata": {
+      "id": "SQL_39",
+      "title": "Reformat Department Table",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/reformat-department-table/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Reformat%20department%20table.sql"
+    }
+  },
+  {
+    "vector_content": "Write an SQL query to report the distinct titles of the kid-friendly movies streamed in June 2020.\nThe query result format is in the following example.\nTVProgram table:\nContent table:\nResult table:\n\"Leetcode Movie\" is not a content for kids.\n\"Alg. for Kids\" is not a movie.\n\"Database Sols\" is not a movie\n\"Alladin\" is a movie, content for kids and was streamed in June 2020.\n\"Cinderella\" was not streamed in June 2020.\nSolution\nselect distinct title\nfrom\n(select content_id, title\nfrom content\njoin\ntvprogram using (content_id)\nwhere month(program_date) = 6",
+    "solution_raw": "select distinct title\nfrom\n(select content_id, title\nfrom content\nwhere kids_content = 'Y' and content_type = 'Movies') a\njoin\ntvprogram using (content_id)\nwhere month(program_date) = 6",
+    "metadata": {
+      "id": "SQL_40",
+      "title": "Friendly Movies Streamed List",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/friendly-movies-streamed-list/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Friendly%20Movies%20streamed%20list.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Submissions\nEach row can be a post or comment on the post.\nparent_id is null for posts.\nparent_id for comments is sub_id for another post in the table.\nWrite an SQL query to find number of comments per each post.\nand must be sorted by post_id in ascending order.\nSubmissions may contain duplicate comments. You should count the number of unique comments per post.\nSubmissions may contain duplicate posts. You should treat them as one post.\nThe query result format is in the following example:\nSubmissions table:\nResult table:\nrepeated in the table, we counted it only once.\nThe post with id 12 has no comments in the table.\nThe comment with id 6 is a comment on a deleted post with id 7 so we ignored it.\nSolution\nSelect a.sub_id as post_id, coalesce(b.number_of_comments,0) as number_of_comments\nfrom(\nselect distinct sub_id from submissions where parent_id is null) a\nleft join(\nselect parent_id, count(distinct(sub_id)) as number_of_comments\nfrom submissions\ngroup by parent_id\nhaving parent_id = any(select sub_id from submissions where parent_id is null)) b\non a.sub_id = b.parent_id\norder by post_id",
+    "solution_raw": "Select a.sub_id as post_id, coalesce(b.number_of_comments,0) as number_of_comments\nfrom(\nselect distinct sub_id from submissions where parent_id is null) a\nleft join(\nselect parent_id, count(distinct(sub_id)) as number_of_comments\nfrom submissions\ngroup by parent_id\nhaving parent_id = any(select sub_id from submissions where parent_id is null)) b\non a.sub_id = b.parent_id\norder by post_id",
+    "metadata": {
+      "id": "SQL_41",
+      "title": "Number Of Comments Per Post",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/number-of-comments-per-post/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Number%20of%20comments%20per%20post.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Students\nTable: Subjects\nTable: Examinations\nWrite an SQL query to find the number of times each student attended each exam.\nThe query result format is in the following example:\nStudents table:\nSubjects table:\nExaminations table:\nResult table:\nAlice attended Math exam 3 times, Physics exam 2 times and Programming exam 1 time.\nBob attended Math exam 1 time, Programming exam 1 time and didn't attend the Physics exam.\nAlex didn't attend any exam.\nJohn attended Math exam 1 time, Physics exam 1 time and Programming exam 1 time.\nSolution\nSelect a.student_id as student_id, a.student_name as student_name, a.subject_name as subject_name, coalesce(attended_exams,0) as attended_exams\nfrom(\nselect *\nfrom students\ncross join subjects\ngroup by student_id, student_name, subject_name) a\nleft join\n(Select e.student_id, student_name, subject_name, count(*) as attended_exams\nfrom examinations e join students s\non e.student_id = s.student_id\ngroup by e.student_id, student_name, subject_name) b\non a.student_id = b.student_id and a.subject_name =b.subject_name\norder by a.student_id asc, a.subject_name asc",
+    "solution_raw": "Select a.student_id as student_id, a.student_name as student_name, a.subject_name as subject_name, coalesce(attended_exams,0) as attended_exams\nfrom(\nselect *\nfrom students\ncross join subjects\ngroup by student_id, student_name, subject_name) a\nleft join \n(Select e.student_id, student_name, subject_name, count(*) as attended_exams\nfrom examinations e join students s\non e.student_id = s.student_id\ngroup by e.student_id, student_name, subject_name) b\non a.student_id = b.student_id and a.subject_name =b.subject_name\norder by a.student_id asc, a.subject_name asc",
+    "metadata": {
+      "id": "SQL_42",
+      "title": "Students And Examinations",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/students-and-examinations/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Students%20and%20Examinations.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Products\nTable: Orders\nproduct_id is a foreign key to Products table.\nunit is the number of products ordered in order_date.\nWrite an SQL query to get the names of products with greater than or equal to 100 units ordered in February 2020 and their amount.\nThe query result format is in the following example:\nProducts table:\nOrders table:\nResult table:\nProducts with product_id = 1 is ordered in February a total of (60 + 70) = 130.\nProducts with product_id = 2 is ordered in February a total of 80.\nProducts with product_id = 3 is ordered in February a total of (2 + 3) = 5.\nProducts with product_id = 4 was not ordered in February 2020.\nProducts with product_id = 5 is ordered in February a total of (50 + 50) = 100.\nSolution\nSelect a.product_name, a.unit\nfrom\n(select p.product_name, sum(unit) as unit\nfrom orders o\njoin products p\non o.product_id = p.product_id\nwhere month(order_date)=2 and year(order_date) = 2020\ngroup by o.product_id) a\nwhere a.unit>=100",
+    "solution_raw": "Select a.product_name, a.unit\nfrom\n(select p.product_name, sum(unit) as unit\nfrom orders o \njoin products p\non o.product_id = p.product_id\nwhere month(order_date)=2 and year(order_date) = 2020\ngroup by o.product_id) a\nwhere a.unit>=100",
+    "metadata": {
+      "id": "SQL_43",
+      "title": "List The Products Ordered In A Period",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/list-the-products-ordered-in-a-period/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/List%20the%20products%20ordered%20in%20a%20period.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Queries\nThe position column has a value from 1 to 500.\nThe rating column has a value from 1 to 5. Query with rating less than 3 is a poor query.\nWe define query quality as:\nThe average of the ratio between query rating and its position.\nWe also define poor query percentage as:\nThe percentage of all queries with rating less than 3.\nWrite an SQL query to find each query_name, the quality and poor_query_percentage.\nBoth quality and poor_query_percentage should be rounded to 2 decimal places.\nThe query result format is in the following example:\nQueries table:\nResult table:\nDog queries quality is ((5 / 1) + (5 / 2) + (1 / 200)) / 3 = 2.50\nDog queries poor_ query_percentage is (1 / 3) * 100 = 33.33\nCat queries quality equals ((2 / 5) + (3 / 3) + (4 / 7)) / 3 = 0.66\nCat queries poor_ query_percentage is (1 / 3) * 100 = 33.33\nSolution\nSelect query_name, round(sum(rating/position)/count(*),2) as quality,\nround(avg(case when rating<3 then 1 else 0 end)*100,2) as poor_query_percentage\nfrom queries\ngroup by query_name",
+    "solution_raw": "Select query_name, round(sum(rating/position)/count(*),2) as quality, \nround(avg(case when rating<3 then 1 else 0 end)*100,2) as poor_query_percentage\nfrom queries\ngroup by query_name",
+    "metadata": {
+      "id": "SQL_44",
+      "title": "Queries Quality And Percentage",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/queries-quality-and-percentage/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Queries%20quality%20and%20percentage.sql"
+    }
+  },
+  {
+    "vector_content": "It is guaranteed that exactly one customer will have placed more orders than any other customer.\nSample Input\nSample Output\nExplanation\nThe customer with number '3' has two orders,\nwhich is greater than either customer '1' or '2' because each of them  only has one order.\nSo the result is customer_number '3'.\nSolution\nRanking them according to the number of orders to have same rank for\ncustomers with same number of orders\nWith t1 as\n(\nSelect customer_number,\nRank() over(order by count(customer_number) desc) as rk\nfrom orders\ngroup by customer_number\n)\nSelect t1.customer_number\nfrom t1\nwhere t1.rk=1",
+    "solution_raw": "-- Ranking them according to the number of orders to have same rank for \n-- customers with same number of orders\nWith t1 as \n(\n  Select customer_number, \n  Rank() over(order by count(customer_number) desc) as rk\n  from orders\n  group by customer_number\n) \n\nSelect t1.customer_number\nfrom t1\nwhere t1.rk=1",
+    "metadata": {
+      "id": "SQL_45",
+      "title": "Customer Placing The Largest Number Of Orders",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/customer-placing-the-largest-number-of-orders/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Customer%20placing%20the%20largest%20number%20of%20orders%20.sql"
+    }
+  },
+  {
+    "vector_content": "Select all employee's name and bonus whose bonus is < 1000.\nTable:Employee\nTable: Bonus\nExample ouput:\nSolution\nSelect E.name, B.bonus\nFrom Employee E left join Bonus B\non E.empId = B.empId\nwhere B.bonus< 1000 or B.Bonus IS NULL",
+    "solution_raw": "Select E.name, B.bonus\nFrom Employee E left join Bonus B\non E.empId = B.empId\nwhere B.bonus< 1000 or B.Bonus IS NULL",
+    "metadata": {
+      "id": "SQL_46",
+      "title": "Employee Bonus",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/employee-bonus/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Employee%20Bonus.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Person\nTable: Address\nWrite a SQL query for a report that provides the following information for each person in the Person table,\nregardless if there is an address for each of those people:\nFirstName, LastName, City, State\nSolution\nselect FirstName, LastName, City, State\nfrom Person P left join Address A\non P.PersonId = A.PersonId",
+    "solution_raw": "select FirstName, LastName, City, State\nfrom Person P left join Address A\non P.PersonId = A.PersonId",
+    "metadata": {
+      "id": "SQL_47",
+      "title": "Combine Two Tables",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/combine-two-tables/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Combine%20two%20tables.sql"
+    }
+  },
+  {
+    "vector_content": "X city opened a new cinema, many people would like to go to this cinema.\nThe cinema also gives out a poster indicating the movies’ ratings and descriptions.\nPlease write a SQL query to output movies with an odd numbered ID and a description that is not 'boring'.\nOrder the result by rating.\nFor the example above, the output should be:\nSolution\nSelect *\nfrom cinema\nwhere id%2=1 and description not in ('boring')\norder by rating desc",
+    "solution_raw": "Select *\nfrom cinema\nwhere id%2=1 and description not in ('boring')\norder by rating desc",
+    "metadata": {
+      "id": "SQL_48",
+      "title": "Not Boring Movies",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/not-boring-movies/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Not%20Boring%20movies.sql"
+    }
+  },
+  {
+    "vector_content": "Can you write a SQL query to find the biggest number, which only appears once.\nFor the sample data above, your query should return the following result:\nNote:\nIf there is no such number, just output null.\nSolution\nSelect max(a.num) as num\nfrom\n(\nselect num, count(*)\nfrom my_numbers\ngroup by num\nhaving count(*)=1\n) a",
+    "solution_raw": "Select max(a.num) as num\nfrom \n( \n    select num, count(*)\n    from my_numbers\n    group by num\n    having count(*)=1\n) a",
+    "metadata": {
+      "id": "SQL_49",
+      "title": "Biggest Single Number",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/biggest-single-number/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Biggest%20Single%20number.sql"
+    }
+  },
+  {
+    "vector_content": "For example, your query should return the following for the above table:\nSolution\nSelect Email\nfrom\n(Select Email, count(Email)\nfrom person\ngroup by Email\nhaving count(Email)>1) a",
+    "solution_raw": "Select Email\nfrom\n(Select Email, count(Email)\nfrom person\ngroup by Email\nhaving count(Email)>1) a",
+    "metadata": {
+      "id": "SQL_50",
+      "title": "Duplicate Emails",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_easy"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/duplicate-emails/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Easy/Duplicate%20Emails.sql"
+    }
+  },
+  {
+    "vector_content": "X city built a new stadium, each day many people visit it and the stats are saved as these columns: id, visit_date, people\nPlease write a query to display the records which have 3 or more consecutive rows and the amount of people more than 100(inclusive).\nFor the sample data above, the output is:\nNote:\nEach day only have one row record, and the dates are increasing with id increasing.\nSolution\nWITH t1 AS (\nSELECT id,\nvisit_date,\npeople,\nid - ROW_NUMBER() OVER(ORDER BY visit_date) AS dates\nFROM stadium\nWHERE people >= 100)\nSELECT t1.id,\nt1.visit_date,\nt1people\nFROM t1\nLEFT JOIN (\nSELECT dates,\nCOUNT(*) as total\nFROM t1\nGROUP BY dates) AS b\nUSING (dates)\nWHERE b.total > 2",
+    "solution_raw": "WITH t1 AS (\n            SELECT id, \n                   visit_date,\n                   people,\n                   id - ROW_NUMBER() OVER(ORDER BY visit_date) AS dates\n              FROM stadium\n            WHERE people >= 100) \n            \nSELECT t1.id, \n       t1.visit_date,\n       t1people\nFROM t1\nLEFT JOIN (\n            SELECT dates, \n                   COUNT(*) as total\n              FROM t1\n            GROUP BY dates) AS b\nUSING (dates)\nWHERE b.total > 2",
+    "metadata": {
+      "id": "SQL_51",
+      "title": "Human Traffic Of Stadium",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/human-traffic-of-stadium/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Human%20traffic%20of%20stadium.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL query to find employees who earn the top three salaries in each of the department. For the above tables, your SQL query should return the following rows (order of rows does not matter).\nExplanation:\nIn IT department, Max earns the highest salary, both Randy and Joe earn the second highest salary,\nand Will earns the third highest salary.\nThere are only two employees in the Sales department,\nHenry earns the highest salary while Sam earns the second highest salary.\nSolution\nselect a.department, a.employee, a.salary\nfrom (\nselect d.name as department, e.name as employee, salary,\ndense_rank() over(Partition by d.name order by salary desc) as rk\nfrom Employee e join Department d\non e.departmentid = d.id) a\nwhere a.rk<4",
+    "solution_raw": "select a.department, a.employee, a.salary\nfrom (\nselect d.name as department, e.name as employee, salary, \n    dense_rank() over(Partition by d.name order by salary desc) as rk\nfrom Employee e join Department d\non e.departmentid = d.id) a\nwhere a.rk<4",
+    "metadata": {
+      "id": "SQL_52",
+      "title": "Department Top Three Salaries",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/department-top-three-salaries/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Department%20top%20three%20salaries.sql"
+    }
+  },
+  {
+    "vector_content": "Given two tables as below, write a query to display the comparison result (higher/lower/same) of the\naverage salary of employees in a department to the company's average salary.\nTable: salary\nSo for the sample data above, the result is:\nExplanation\nIn March, the company's average salary is (9000+6000+10000)/3 = 8333.33...\nThe average salary for department '1' is 9000, which is the salary of employee_id '1' since there is only one employee in this department. So the comparison result is 'higher' since 9000 > 8333.33 obviously.\nThe average salary of department '2' is (6000 + 10000)/2 = 8000, which is the average of employee_id '2' and '3'. So the comparison result is 'lower' since 8000 < 8333.33.\nWith he same formula for the average salary comparison in February, the result is 'same' since both the department '1' and '2' have the same average salary with the company, which is 7000.\nSolution\nwith t1 as(\nselect date_format(pay_date,'%Y-%m') as pay_month, department_id, avg(amount) over(partition by month(pay_date),department_id) as dept_avg,\navg(amount) over(partition by month(pay_date)) as comp_avg\nfrom salary s join employee e\nusing (employee_id))\nselect distinct pay_month, department_id,\ncase when dept_avg>comp_avg then \"higher\"\nwhen dept_avg = comp_avg then \"same\"\nelse \"lower\"\nend as comparison\nfrom t1\norder by 1 desc",
+    "solution_raw": "with t1 as(\nselect date_format(pay_date,'%Y-%m') as pay_month, department_id, avg(amount) over(partition by month(pay_date),department_id) as dept_avg, \navg(amount) over(partition by month(pay_date)) as comp_avg\nfrom salary s join employee e\nusing (employee_id))\n\nselect distinct pay_month, department_id, \ncase when dept_avg>comp_avg then \"higher\"\nwhen dept_avg = comp_avg then \"same\"\nelse \"lower\"\nend as comparison\nfrom t1\norder by 1 desc",
+    "metadata": {
+      "id": "SQL_53",
+      "title": "Average Salary",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/average-salary/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Average%20Salary.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Orders\norder_date is the date when item_id was ordered by the customer with id customer_id.\nTable: Items\nitem_name is the name of the item.\nitem_category is the category of the item.\nYou are the business owner and would like to obtain a sales report for category items and day of the week.\nWrite an SQL query to report how many units in each category have been ordered on each day of the week.\nThe query result format is in the following example:\nOrders table:\nItems table:\nResult table:\nOn Monday (2020-06-01, 2020-06-08) were sold a total of 20 units (10 + 10) in the category Book (ids: 1, 2).\nOn Tuesday (2020-06-02) were sold a total of 5 units  in the category Book (ids: 1, 2).\nOn Wednesday (2020-06-03) were sold a total of 5 units in the category Phone (ids: 3, 4).\nOn Thursday (2020-06-04) were sold a total of 1 unit in the category Phone (ids: 3, 4).\nOn Friday (2020-06-05) were sold 10 units in the category Book (ids: 1, 2) and 5 units in Glasses (ids: 5).\nOn Saturday there are no items sold.\nOn Sunday (2020-06-14, 2020-06-21) were sold a total of 10 units (5 +5) in the category Phone (ids: 3, 4).\nThere are no sales of T-Shirt.\nSolution\nwith t1 as(\nselect distinct item_category,\ncase when dayname(order_date)='Monday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Monday,\nCase when dayname(order_date)='Tuesday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Tuesday,\nCase when dayname(order_date)='Wednesday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Wednesday,\nCase when dayname(order_date)='Thursday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Thursday,\nCase when dayname(order_date)='Friday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Friday,\nCase when dayname(order_date)='Saturday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Saturday,\nCase when dayname(order_date)='Sunday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Sunday\nfrom orders o\nright join items i\nusing (item_id))\nselect item_category as category, sum(Monday) as Monday, sum(Tuesday) as Tuesday, sum(Wednesday) Wednesday, sum(Thursday) Thursday,\nsum(Friday) Friday, sum(Saturday) Saturday, sum(Sunday) Sunday\nfrom t1\ngroup by item_category",
+    "solution_raw": "with t1 as(\nselect distinct item_category,\ncase when dayname(order_date)='Monday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Monday,\nCase when dayname(order_date)='Tuesday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Tuesday,\nCase when dayname(order_date)='Wednesday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Wednesday,\nCase when dayname(order_date)='Thursday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Thursday,\nCase when dayname(order_date)='Friday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Friday,\nCase when dayname(order_date)='Saturday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Saturday,\nCase when dayname(order_date)='Sunday' then sum(quantity) over(partition by item_category,dayname(order_date)) else 0 end as Sunday\nfrom orders o\nright join items i\nusing (item_id))\n\nselect item_category as category, sum(Monday) as Monday, sum(Tuesday) as Tuesday, sum(Wednesday) Wednesday, sum(Thursday) Thursday,\nsum(Friday) Friday, sum(Saturday) Saturday, sum(Sunday) Sunday\nfrom t1\ngroup by item_category",
+    "metadata": {
+      "id": "SQL_54",
+      "title": "Sales By Day Of The Week",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/sales-by-day-of-the-week/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Sales%20by%20day%20of%20the%20week.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Student\nstudent_name is the name of the student.\nTable: Exam\nStudent with student_id got score points in exam with id exam_id.\nA \"quite\" student is the one who took at least one exam and didn't score neither the high score nor the low score.\nWrite an SQL query to report the students (student_id, student_name) being \"quiet\" in ALL exams.\nThe query result format is in the following example.\nStudent table:\nExam table:\nResult table:\nFor exam 1: Student 1 and 3 hold the lowest and high score respectively.\nFor exam 2: Student 1 hold both highest and lowest score.\nFor exam 3 and 4: Studnet 1 and 4 hold the lowest and high score respectively.\nStudent 2 and 5 have never got the highest or lowest in any of the exam.\nSince student 5 is not taking any exam, he is excluded from the result.\nSo, we only return the information of Student 2.\nSolution\nwith t1 as(\nselect student_id\nfrom\n(select *,\nmin(score) over(partition by exam_id) as least,\nmax(score) over(partition by exam_id) as most\nfrom exam) a\nwhere least = score or most = score)\nselect distinct student_id, student_name\nfrom exam join student\nusing (student_id)\nwhere student_id != all(select student_id from t1)\norder by 1",
+    "solution_raw": "with t1 as(\nselect student_id\nfrom\n(select *,\nmin(score) over(partition by exam_id) as least,\nmax(score) over(partition by exam_id) as most\nfrom exam) a\nwhere least = score or most = score)\n\n\nselect distinct student_id, student_name\nfrom exam join student\nusing (student_id)\nwhere student_id != all(select student_id from t1)\norder by 1",
+    "metadata": {
+      "id": "SQL_55",
+      "title": "Find The Quiet Students In The Exam",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/find-the-quiet-students-in-the-exam/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Find%20the%20quiet%20students%20in%20the%20exam.sql"
+    }
+  },
+  {
+    "vector_content": "For the sample input, the output is:\nSolution\nselect min(case when continent = 'America' then name end) as America,\nmin(case when continent = 'Asia' then name end) as Asia,\nmin(case when continent = 'Europe' then name end) as Europe\nfrom\n(select *, row_number() over(partition by continent order by name) as rn\nfrom student) a\ngroup by rn",
+    "solution_raw": "select min(case when continent = 'America' then name end) as America,\nmin(case when continent = 'Asia' then name end) as Asia,\nmin(case when continent = 'Europe' then name end) as Europe\nfrom \n(select *, row_number() over(partition by continent order by name) as rn\nfrom student) a\ngroup by rn",
+    "metadata": {
+      "id": "SQL_56",
+      "title": "Students Report By Geography",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/students-report-by-geography/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Students%20report%20by%20geography.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL query to find the cancellation rate of requests made by unbanned users (both client and driver must be unbanned) between Oct 1, 2013 and Oct 3, 2013. The cancellation rate is computed by dividing the number of canceled (by client or driver) requests made by unbanned users by the total number of requests made by unbanned users.\nFor the above tables, your SQL query should return the following rows with the cancellation rate being rounded to two decimal places.\nCredits:\nSpecial thanks to @cak1erlizhou for contributing this question, writing the problem description and adding part of the test cases.\nSolution\nwith t1 as(\nselect request_at, count(status) as total\nfrom trips\nwhere client_id = any(select users_id\nfrom users\nwhere banned != 'Yes')\nand driver_id = any(select users_id\nfrom users\nwhere banned != 'Yes')\nand request_at between '2013-10-01' and '2013-10-03'\ngroup by request_at),\nt2 as\n( select request_at, count(status) as cancel\nfrom trips\nwhere client_id = any(select users_id\nfrom users\nwhere banned != 'Yes')\nand driver_id = any(select users_id\nfrom users\nwhere banned != 'Yes')\nand request_at between '2013-10-01' and '2013-10-03'\nand status != 'completed'\ngroup by request_at\n)\nselect request_at as Day, coalesce(round((cancel+0.00)/(total+0.00),2),0) as \"Cancellation Rate\"\nfrom t1 left join t2\nusing(request_at)",
+    "solution_raw": "with t1 as(\nselect request_at, count(status) as total\nfrom trips \nwhere client_id = any(select users_id\nfrom users\nwhere banned != 'Yes') \nand driver_id = any(select users_id\nfrom users\nwhere banned != 'Yes')\nand request_at between '2013-10-01' and '2013-10-03'\ngroup by request_at),\n\nt2 as\n( select request_at, count(status) as cancel\nfrom trips \nwhere client_id = any(select users_id\nfrom users\nwhere banned != 'Yes') \nand driver_id = any(select users_id\nfrom users\nwhere banned != 'Yes')\nand request_at between '2013-10-01' and '2013-10-03'\nand status != 'completed'\ngroup by request_at\n)\n\nselect request_at as Day, coalesce(round((cancel+0.00)/(total+0.00),2),0) as \"Cancellation Rate\"\nfrom t1 left join t2\nusing(request_at)",
+    "metadata": {
+      "id": "SQL_57",
+      "title": "Trips And Users",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/trips-and-users/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Trips%20and%20Users.sql"
+    }
+  },
+  {
+    "vector_content": "In this table, the numbers are 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, so the median is (0 + 0) / 2 = 0.\nWrite a query to find the median of all numbers and name the result as median.\nSolution\nwith t1 as(\nselect *,\nsum(frequency) over(order by number) as cum_sum, (sum(frequency) over())/2 as middle\nfrom numbers)\nselect avg(number) as median\nfrom t1\nwhere middle between (cum_sum - frequency) and cum_sum",
+    "solution_raw": "with t1 as(\nselect *,\nsum(frequency) over(order by number) as cum_sum, (sum(frequency) over())/2 as middle\nfrom numbers)\n\nselect avg(number) as median\nfrom t1\nwhere middle between (cum_sum - frequency) and cum_sum",
+    "metadata": {
+      "id": "SQL_58",
+      "title": "Find Median Given Frequency Of Numbers",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/find-median-given-frequency-of-numbers/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Find%20median%20given%20frequency%20of%20numbers.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL to get the cumulative sum of an employee's salary over a period of 3 months but exclude the most recent month.\nThe result should be displayed by 'Id' ascending, and then by 'Month' descending.\nExample\nInput\nOutput\nExplanation\nEmployee '1' has 3 salary records for the following 3 months except the most recent month '4': salary 40 for month '3', 30 for month '2' and 20 for month '1'\nSo the cumulative sum of salary of this employee over 3 months is 90(40+30+20), 50(30+20) and 20 respectively.\nEmployee '2' only has one salary record (month '1') except its most recent month '2'.\nEmploy '3' has two salary records except its most recent pay month '4': month '3' with 60 and month '2' with 40. So the cumulative salary is as following.\nSolution\nwith t1 as(\nselect *, max(month) over(partition by id) as recent_month\nfrom employee)\nselect id, month, sum(salary) over(partition by id order by month rows between 2 preceding and current row) as salary\nfrom t1\nwhere month<recent_month\norder by 1, 2 desc",
+    "solution_raw": "with t1 as(\nselect *, max(month) over(partition by id) as recent_month\nfrom employee)\n\nselect id, month, sum(salary) over(partition by id order by month rows between 2 preceding and current row) as salary\nfrom t1\nwhere month<recent_month\norder by 1, 2 desc",
+    "metadata": {
+      "id": "SQL_59",
+      "title": "Cumulative Salary",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/cumulative-salary/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Cumulative%20Salary.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Visits\nTable: Transactions\nA bank wants to draw a chart of the number of transactions bank visitors did in one visit to the bank and the corresponding number of visitors who have done this number of transaction in one visit.\nWrite an SQL query to find how many users visited the bank and didn't do any transactions, how many visited the bank and did one transaction and so on.\ntransactions_count which is the number of transactions done in one visit.\nvisits_count which is the corresponding number of users who did transactions_count in one visit to the bank.\ntransactions_count should take all values from 0 to max(transactions_count) done by one or more users.\nThe query result format is in the following example:\nVisits table:\nTransactions table:\nResult table:\n* For transactions_count = 0, The visits (1, \"2020-01-01\"), (2, \"2020-01-02\"), (12, \"2020-01-01\") and (19, \"2020-01-03\") did no transactions so visits_count = 4.\n* For transactions_count = 1, The visits (2, \"2020-01-03\"), (7, \"2020-01-11\"), (8, \"2020-01-28\"), (1, \"2020-01-02\") and (1, \"2020-01-04\") did one transaction so visits_count = 5.\n* For transactions_count = 2, No customers visited the bank and did two transactions so visits_count = 0.\n* For transactions_count = 3, The visit (9, \"2020-01-25\") did three transactions so visits_count = 1.\n* For transactions_count >= 4, No customers visited the bank and did more than three transactions so we will stop at transactions_count = 3\nSolution\nWITH RECURSIVE t1 AS(\nSELECT visit_date,\nCOALESCE(num_visits,0) as num_visits,\nCOALESCE(num_trans,0) as num_trans\nFROM ((\nSELECT visit_date, user_id, COUNT(*) as num_visits\nFROM visits\nGROUP BY 1, 2) AS a\nLEFT JOIN\n(\nSELECT transaction_date,\nuser_id,\ncount(*) as num_trans\nFROM transactions\nGROUP BY 1, 2) AS b\nON a.visit_date = b.transaction_date and a.user_id = b.user_id)\n),\nt2 AS (\nSELECT MAX(num_trans) as trans\nFROM t1\nUNION ALL\nSELECT trans-1\nFROM t2\nWHERE trans >= 1)\nSELECT trans as transactions_count,\nCOALESCE(visits_count,0) as visits_count\nFROM t2 LEFT JOIN (\nSELECT num_trans as transactions_count, COALESCE(COUNT(*),0) as visits_count\nFROM t1\nGROUP BY 1\nORDER BY 1) AS a\nON a.transactions_count = t2.trans\nORDER BY 1",
+    "solution_raw": "WITH RECURSIVE t1 AS(\n                    SELECT visit_date,\n                           COALESCE(num_visits,0) as num_visits,\n                           COALESCE(num_trans,0) as num_trans\n                    FROM ((\n                          SELECT visit_date, user_id, COUNT(*) as num_visits\n                          FROM visits\n                          GROUP BY 1, 2) AS a\n                         LEFT JOIN\n                          (\n                           SELECT transaction_date,\n                                 user_id,\n                                 count(*) as num_trans\n                            FROM transactions\n                          GROUP BY 1, 2) AS b\n                         ON a.visit_date = b.transaction_date and a.user_id = b.user_id)\n                      ),\n\n              t2 AS (\n                      SELECT MAX(num_trans) as trans\n                        FROM t1\n                      UNION ALL\n                      SELECT trans-1 \n                        FROM t2\n                      WHERE trans >= 1)\n\nSELECT trans as transactions_count, \n       COALESCE(visits_count,0) as visits_count\n  FROM t2 LEFT JOIN (\n                    SELECT num_trans as transactions_count, COALESCE(COUNT(*),0) as visits_count\n                    FROM t1 \n                    GROUP BY 1\n                    ORDER BY 1) AS a\nON a.transactions_count = t2.trans\nORDER BY 1",
+    "metadata": {
+      "id": "SQL_60",
+      "title": "Number Of Transactions Per Visit",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/number-of-transactions-per-visit/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Number%20of%20transactions%20per%20visit.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Spending\nWrite an SQL query to find the total number of users and the total amount spent using mobile only, desktop only and both mobile and desktop together for each date.\nThe query result format is in the following example:\nSpending table:\nResult table:\nOn 2019-07-01, user 1 purchased using both desktop and mobile, user 2 purchased using mobile only and user 3 purchased using desktop only.\nOn 2019-07-02, user 2 purchased using mobile only, user 3 purchased using desktop only and no one purchased using both platforms.\nSolution\nSELECT p.spend_date, p.platform, IFNULL(SUM(amount), 0) total_amount, COUNT(DISTINCT u.user_id) total_users\nFROM\n(\nSELECT DISTINCT(spend_date), 'desktop' platform FROM Spending\nUNION\nSELECT DISTINCT(spend_date), 'mobile' platform FROM Spending\nUNION\nSELECT DISTINCT(spend_date), 'both' platform FROM Spending\n) p LEFT JOIN\n(SELECT user_id, spend_date, SUM(amount) amount, (CASE WHEN COUNT(DISTINCT platform)>1 THEN \"both\" ELSE platform END) platform\nFROM Spending\nGROUP BY spend_date, user_id) u\nON p.platform = u.platform AND p.spend_date=u.spend_date\nGROUP BY p.spend_date, p.platform",
+    "solution_raw": "SELECT p.spend_date, p.platform, IFNULL(SUM(amount), 0) total_amount, COUNT(DISTINCT u.user_id) total_users\nFROM\n(\nSELECT DISTINCT(spend_date), 'desktop' platform FROM Spending\nUNION\nSELECT DISTINCT(spend_date), 'mobile' platform FROM Spending\nUNION\nSELECT DISTINCT(spend_date), 'both' platform FROM Spending\n) p LEFT JOIN\n\n(SELECT user_id, spend_date, SUM(amount) amount, (CASE WHEN COUNT(DISTINCT platform)>1 THEN \"both\" ELSE platform END) platform\nFROM Spending\nGROUP BY spend_date, user_id) u\n\nON p.platform = u.platform AND p.spend_date=u.spend_date\n\nGROUP BY p.spend_date, p.platform",
+    "metadata": {
+      "id": "SQL_61",
+      "title": "User Purchase Platform",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/user-purchase-platform/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/User%20purchase%20platform.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL query to find the median salary of each company. Bonus points if you can solve it without using any built-in SQL functions.\nSolution\nselect id, company, salary\nfrom\n(select *,\nrow_number() over(partition by company order by salary) as rn,\ncount(*) over(partition by company) as cnt\nfrom employee) a\nwhere rn between cnt/2 and cnt/2+1",
+    "solution_raw": "select id, company, salary\nfrom\n(select *, \nrow_number() over(partition by company order by salary) as rn,\ncount(*) over(partition by company) as cnt\nfrom employee) a\nwhere rn between cnt/2 and cnt/2+1",
+    "metadata": {
+      "id": "SQL_62",
+      "title": "Median Employee Salary",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/median-employee-salary/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Median%20Employee%20Salary.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Players\nTable: Matches\nEach row is a record of a match, first_player and second_player contain the player_id of each match.\nfirst_score and second_score contain the number of points of the first_player and second_player respectively.\nYou may assume that, in each match, players belongs to the same group.\nThe winner in each group is the player who scored the maximum total points within the group. In the case of a tie,\nthe lowest player_id wins.\nWrite an SQL query to find the winner in each group.\nThe query result format is in the following example:\nPlayers table:\nMatches table:\nResult table:\nSolution\nwith t1 as(\nselect first_player, sum(first_score) as total\nfrom\n(select first_player, first_score\nfrom matches\nunion all\nselect second_player, second_score\nfrom matches) a\ngroup by 1),\nt2 as(\nselect *, coalesce(total,0) as score\nfrom players p left join t1\non p.player_id = t1.first_player)\nselect group_id, player_id\nfrom\n(select *, row_number() over(partition by group_id order by group_id, score desc) as rn\nfrom t2) b\nwhere b.rn = 1",
+    "solution_raw": "with t1 as(\nselect first_player, sum(first_score) as total\nfrom\n(select first_player, first_score\nfrom matches\nunion all\nselect second_player, second_score\nfrom matches) a\ngroup by 1),\n\nt2 as(\nselect *, coalesce(total,0) as score\nfrom players p left join t1\non p.player_id = t1.first_player)\n\nselect group_id, player_id\nfrom \n(select *, row_number() over(partition by group_id order by group_id, score desc) as rn\nfrom t2) b\nwhere b.rn = 1",
+    "metadata": {
+      "id": "SQL_63",
+      "title": "Tournament Winners",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/tournament-winners/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Tournament%20Winners.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Failed\nTable: Succeeded\nA system is running one task every day. Every task is independent of the previous tasks. The tasks can fail or succeed.\nWrite an SQL query to generate a report of period_state for each continuous interval of days in the period from 2019-01-01 to 2019-12-31.\nperiod_state is 'failed' if tasks in this interval failed or 'succeeded' if tasks in this interval succeeded. Interval of days are retrieved as start_date and end_date.\nOrder result by start_date.\nThe query result format is in the following example:\nFailed table:\nSucceeded table:\nResult table:\nThe report ignored the system state in 2018 as we care about the system in the period 2019-01-01 to 2019-12-31.\nFrom 2019-01-01 to 2019-01-03 all tasks succeeded and the system state was \"succeeded\".\nFrom 2019-01-04 to 2019-01-05 all tasks failed and system state was \"failed\".\nFrom 2019-01-06 to 2019-01-06 all tasks succeeded and system state was \"succeeded\".\nSolution\nwith t1 as(\nselect min(success_date) as start_date, max(success_date) as end_date, state\nfrom(\nselect *, date_sub(success_date, interval row_number() over(order by success_date) day) as diff, 1 as state\nfrom succeeded\nwhere success_date between \"2019-01-01\" and \"2019-12-31\") a\ngroup by diff),\nt2 as(\nselect min(fail_date) as start_date, max(fail_date) as end_date, state\nfrom(\nselect *, date_sub(fail_date, interval row_number() over(order by fail_date) day) as diff, 0 as state\nfrom failed\nwhere fail_date between \"2019-01-01\" and \"2019-12-31\") b\ngroup by diff)\nselect\ncase when c.state = 1 then \"succeeded\"\nelse \"failed\"\nend as period_state,start_date, end_date\nfrom(\nselect *\nfrom t1\nunion all\nselect *\nfrom t2) c\norder by start_date",
+    "solution_raw": "with t1 as(\nselect min(success_date) as start_date, max(success_date) as end_date, state\nfrom(\nselect *, date_sub(success_date, interval row_number() over(order by success_date) day) as diff, 1 as state\nfrom succeeded\nwhere success_date between \"2019-01-01\" and \"2019-12-31\") a\ngroup by diff),\n\nt2 as(\nselect min(fail_date) as start_date, max(fail_date) as end_date, state\nfrom(\nselect *, date_sub(fail_date, interval row_number() over(order by fail_date) day) as diff, 0 as state\nfrom failed\nwhere fail_date between \"2019-01-01\" and \"2019-12-31\") b\ngroup by diff)\n\n\nselect \ncase when c.state = 1 then \"succeeded\"\nelse \"failed\"\nend as period_state,start_date, end_date\nfrom(\nselect *\nfrom t1\nunion all\nselect *\nfrom t2) c\norder by start_date",
+    "metadata": {
+      "id": "SQL_64",
+      "title": "Report Contiguous Dates",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/report-contiguous-dates/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Report%20contiguous%20dates.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Activity\nEach row is a record of a player who logged in and played a number of games (possibly 0) before logging out on some day using some device.\nWe define the install date of a player to be the first login day of that player.\nWe also define day 1 retention of some date X to be the number of players whose install date is X and they logged back in on the day right after X, divided by the number of players whose install date is X, rounded to 2 decimal places.\nWrite an SQL query that reports for each install date, the number of players that installed the game on that day and the day 1 retention.\nThe query result format is in the following example:\nActivity table:\nResult table:\nPlayer 1 and 3 installed the game on 2016-03-01 but only player 1 logged back in on 2016-03-02 so the\nday 1 retention of 2016-03-01 is 1 / 2 = 0.50\nPlayer 2 installed the game on 2017-06-25 but didn't log back in on 2017-06-26 so the day 1 retention of 2017-06-25 is 0 / 1 = 0.00\nSolution\nwith t1 as(\nselect *,\nrow_number() over(partition by player_id order by event_date) as rnk,\nmin(event_date) over(partition by player_id) as install_dt,\nlead(event_date,1) over(partition by player_id order by event_date) as nxt\nfrom Activity)\nselect distinct install_dt,\ncount(distinct player_id) as installs,\nround(sum(case when nxt=event_date+1 then 1 else 0 end)/count(distinct player_id),2) as Day1_retention\nfrom t1\nwhere rnk = 1\ngroup by 1\norder by 1",
+    "solution_raw": "with t1 as(\nselect *,\nrow_number() over(partition by player_id order by event_date) as rnk,\nmin(event_date) over(partition by player_id) as install_dt,\nlead(event_date,1) over(partition by player_id order by event_date) as nxt\nfrom Activity)\n\nselect distinct install_dt,\ncount(distinct player_id) as installs,\nround(sum(case when nxt=event_date+1 then 1 else 0 end)/count(distinct player_id),2) as Day1_retention\nfrom t1\nwhere rnk = 1\ngroup by 1\norder by 1",
+    "metadata": {
+      "id": "SQL_65",
+      "title": "Game Play Analysis 5",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/game-play-analysis-5/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Game%20Play%20Analysis%205.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Product\nproduct_name is the name of the product.\nTable: Sales\nperiod_start and period_end indicates the start and end date for sales period, both dates are inclusive.\nThe average_daily_sales column holds the average daily sales amount of the items for the period.\nWrite an SQL query to report the Total sales amount of each item for each year, with corresponding product name, product_id, product_name and report_year.\nThe query result format is in the following example:\nProduct table:\nSales table:\nResult table:\nLC Phone was sold for the period of 2019-01-25 to 2019-02-28, and there are 35 days for this period. Total amount 35*100 = 3500.\nLC T-shirt was sold for the period of 2018-12-01 to 2020-01-01, and there are 31, 365, 1 days for years 2018, 2019 and 2020 respectively.\nLC Keychain was sold for the period of 2019-12-01 to 2020-01-31, and there are 31, 31 days for years 2019 and 2020 respectively.\nSolution\nSELECT\nb.product_id,\na.product_name,\na.yr AS report_year,\nCASE\nWHEN YEAR(b.period_start)=YEAR(b.period_end) AND a.yr=YEAR(b.period_start) THEN DATEDIFF(b.period_end,b.period_start)+1\nWHEN a.yr=YEAR(b.period_start) THEN DATEDIFF(DATE_FORMAT(b.period_start,'%Y-12-31'),b.period_start)+1\nWHEN a.yr=YEAR(b.period_end) THEN DAYOFYEAR(b.period_end)\nWHEN a.yr>YEAR(b.period_start) AND a.yr<YEAR(b.period_end) THEN 365\nELSE 0\nEND * average_daily_sales AS total_amount\nFROM\n(SELECT product_id,product_name,'2018' AS yr FROM Product\nUNION\nSELECT product_id,product_name,'2019' AS yr FROM Product\nUNION\nSELECT product_id,product_name,'2020' AS yr FROM Product) a\nJOIN\nSales b\nON a.product_id=b.product_id\nHAVING total_amount > 0\nORDER BY b.product_id,a.yr",
+    "solution_raw": "SELECT\n    b.product_id,\n    a.product_name,\n    a.yr AS report_year,\n    CASE \n        WHEN YEAR(b.period_start)=YEAR(b.period_end) AND a.yr=YEAR(b.period_start) THEN DATEDIFF(b.period_end,b.period_start)+1\n        WHEN a.yr=YEAR(b.period_start) THEN DATEDIFF(DATE_FORMAT(b.period_start,'%Y-12-31'),b.period_start)+1\n        WHEN a.yr=YEAR(b.period_end) THEN DAYOFYEAR(b.period_end) \n        WHEN a.yr>YEAR(b.period_start) AND a.yr<YEAR(b.period_end) THEN 365\n        ELSE 0\n    END * average_daily_sales AS total_amount\nFROM\n    (SELECT product_id,product_name,'2018' AS yr FROM Product\n    UNION\n    SELECT product_id,product_name,'2019' AS yr FROM Product\n    UNION\n    SELECT product_id,product_name,'2020' AS yr FROM Product) a\n    JOIN \n    Sales b\n    ON a.product_id=b.product_id  \nHAVING total_amount > 0\nORDER BY b.product_id,a.yr",
+    "metadata": {
+      "id": "SQL_66",
+      "title": "Total Sales Amount By Year",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/total-sales-amount-by-year/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Total%20sales%20amount%20by%20year.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Users\nTable: Orders\nitem_id is a foreign key to the Items table.\nbuyer_id and seller_id are foreign keys to the Users table.\nTable: Items\nWrite an SQL query to find for each user, whether the brand of the second item (by date) they sold is their favorite brand. If a user sold less than two items, report the answer for that user as no.\nIt is guaranteed that no seller sold more than one item on a day.\nThe query result format is in the following example:\nUsers table:\nOrders table:\nItems table:\nResult table:\nThe answer for the user with id 1 is no because they sold nothing.\nThe answer for the users with id 2 and 3 is yes because the brands of their second sold items are their favorite brands.\nThe answer for the user with id 4 is no because the brand of their second sold item is not their favorite brand.\nSolution\nwith t1 as(\nselect user_id,\ncase when favorite_brand = item_brand then \"yes\"\nelse \"no\"\nend as 2nd_item_fav_brand\nfrom users u left join\n(select o.item_id, seller_id, item_brand, rank() over(partition by seller_id order by order_date) as rk\nfrom orders o join items i\nusing (item_id)) a\non u.user_id = a.seller_id\nwhere a.rk = 2)\nselect u.user_id as seller_id, coalesce(2nd_item_fav_brand,\"no\") as 2nd_item_fav_brand\nfrom users u left join t1\nusing(user_id)",
+    "solution_raw": "with t1 as(\nselect user_id, \ncase when favorite_brand = item_brand then \"yes\"\nelse \"no\"\nend as 2nd_item_fav_brand\nfrom users u left join\n(select o.item_id, seller_id, item_brand, rank() over(partition by seller_id order by order_date) as rk\nfrom orders o join items i\nusing (item_id)) a\non u.user_id = a.seller_id\nwhere a.rk = 2)\n\nselect u.user_id as seller_id, coalesce(2nd_item_fav_brand,\"no\") as 2nd_item_fav_brand\nfrom users u left join t1\nusing(user_id)",
+    "metadata": {
+      "id": "SQL_67",
+      "title": "Market Analysis 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_hard"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/market-analysis-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Hard/Market%20Analysis%202.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Friends\nname is the name of the friend.\nactivity is the name of the activity which the friend takes part in.\nTable: Activities\nname is the name of the activity.\nWrite an SQL query to find the names of all the activities with neither maximum, nor minimum number of participants.\nThe query result format is in the following example:\nFriends table:\nActivities table:\nResult table:\nEating activity is performed by 3 friends, maximum number of participants, (Jonathan D. , Elvis Q. and Daniel A.)\nHorse Riding activity is performed by 1 friend, minimum number of participants, (Bob B.)\nSinging is performed by 2 friends (Victor J. and Jade W.)\nSolution\nwith t1 as(\nselect max(a.total) as total\nfrom(\nselect activity, count(*) as total\nfrom friends\ngroup by activity) a\nunion all\nselect min(b.total) as low\nfrom(\nselect activity, count(*) as total\nfrom friends\ngroup by activity) b),\nt2 as\n(\nselect activity, count(*) as total\nfrom friends\ngroup by activity\n)\nselect activity\nfrom t1 right join t2\non t1.total = t2.total\nwhere t1.total is null",
+    "solution_raw": "with t1 as(\nselect max(a.total) as total\nfrom(\n    select activity, count(*) as total\n    from friends\n    group by activity) a\n\tunion all\n\tselect min(b.total) as low\n    from(\n    select activity, count(*) as total\n    from friends\n    group by activity) b), \nt2 as\n(\n    select activity, count(*) as total\n    from friends\n    group by activity\n)\n\nselect activity\nfrom t1 right join t2\non t1.total = t2.total\nwhere t1.total is null",
+    "metadata": {
+      "id": "SQL_68",
+      "title": "Activity Participants",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/activity-participants/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Activity%20Participants.sql"
+    }
+  },
+  {
+    "vector_content": "In social network like Facebook or Twitter, people send friend requests and accept others' requests as well.\nWrite a query to find the the people who has most friends and the most friends number under the following rules:\nIt is guaranteed there is only 1 people having the most friends.\nThe friend request could only been accepted once, which mean there is no multiple records with the same requester_id and accepter_id value.\nFor the sample data above, the result is:\nResult table:\nThe person with id '3' is a friend of people '1', '2' and '4', so he has 3 friends in total, which is the most number than any others.\nSolution\nselect requester_id as id, b.total as num\nfrom(\nselect requester_id, sum(one) as total\nfrom((\nselect requester_id, count(distinct accepter_id) as one\nfrom request_accepted\ngroup by requester_id)\nunion all\n(select accepter_id, count(distinct requester_id) as two\nfrom request_accepted\ngroup by accepter_id)) a\ngroup by requester_id\norder by total desc) b\nlimit 1",
+    "solution_raw": "select requester_id as id, b.total as num\nfrom(\nselect requester_id, sum(one) as total\nfrom((\nselect requester_id, count(distinct accepter_id) as one\nfrom request_accepted\ngroup by requester_id)\nunion all\n(select accepter_id, count(distinct requester_id) as two\nfrom request_accepted\ngroup by accepter_id)) a\ngroup by requester_id\norder by total desc) b\nlimit 1",
+    "metadata": {
+      "id": "SQL_69",
+      "title": "Friend Requests 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/friend-requests-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Friend%20Requests%202.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL query to find employees who have the highest salary in each of the departments.\nFor the above tables, your SQL query should return the following rows (order of rows does not matter).\nExplanation:\nMax and Jim both have the highest salary in the IT department and Henry has the highest salary in the Sales department.\nSolution\nselect a.Department, a.Employee, a.Salary\nfrom(\nselect d.name as Department, e.name as Employee, Salary,\nrank() over(partition by d.name order by salary desc) as rk\nfrom employee e\njoin department d\non e.departmentid = d.id) a\nwhere a.rk=1",
+    "solution_raw": "select a.Department, a.Employee, a.Salary\nfrom(\nselect d.name as Department, e.name as Employee, Salary,\nrank() over(partition by d.name order by salary desc) as rk\nfrom employee e\njoin department d\non e.departmentid = d.id) a\nwhere a.rk=1",
+    "metadata": {
+      "id": "SQL_70",
+      "title": "Department Highest Salary",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/department-highest-salary/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Department%20Highest%20Salary.sql"
+    }
+  },
+  {
+    "vector_content": "A university uses 2 data tables, student and department, to store data about its students\nand the departments associated with each major.\nWrite a query to print the respective department name and number of students majoring in each\nSort your results by descending number of students; if two or more departments have the same number of students,\nthen sort those departments alphabetically by department name.\nThe student is described as follow:\nwhere student_id is the student's ID number, student_name is the student's name, gender is their gender, and dept_id is the department ID associated with their declared major.\nwhere dept_id is the department's ID number and dept_name is the department name.\nHere is an example input:\nstudent table:\ndepartment table:\nThe Output should be:\nSolution\nselect dept_name, count(s.dept_id) as student_number\nfrom department d\nleft join student s\non d.dept_id = s.dept_id\ngroup by d.dept_id\norder by count(s.dept_id) desc, dept_name",
+    "solution_raw": "select dept_name, count(s.dept_id) as student_number\nfrom department d\nleft join student s\non d.dept_id = s.dept_id\ngroup by d.dept_id\norder by count(s.dept_id) desc, dept_name",
+    "metadata": {
+      "id": "SQL_71",
+      "title": "Count Student Number In Departments",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/count-student-number-in-departments/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Count%20student%20number%20in%20departments.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Traffic\nWrite an SQL query that reports for every date within at most 90 days from today,\nthe number of users that logged in for the first time on that date. Assume today is 2019-06-30.\nThe query result format is in the following example:\nTraffic table:\nResult table:\nNote that we only care about dates with non zero user count.\nThe user with id 5 first logged in on 2019-03-01 so he's not counted on 2019-06-21.\nSolution\nwith t1 as\n(\nselect user_id, min(activity_date) as login_date\nfrom Traffic\nwhere activity = 'login'\ngroup by user_id\n)\nselect login_date, count(distinct user_id) as user_count\nfrom t1\nwhere login_date between '2019-04-01' and '2019-06-30'\ngroup by login_date",
+    "solution_raw": "with t1 as\n(\n    select user_id, min(activity_date) as login_date\n    from Traffic\n    where activity = 'login'\n    group by user_id\n)\n\nselect login_date, count(distinct user_id) as user_count\nfrom t1\nwhere login_date between '2019-04-01' and '2019-06-30'\ngroup by login_date",
+    "metadata": {
+      "id": "SQL_72",
+      "title": "New Users Daily Count",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/new-users-daily-count/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/New%20users%20daily%20count.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Friendship\nTable: Likes\nWrite an SQL query to recommend pages to the user with user_id = 1 using the pages that your friends liked. It should not recommend pages you already liked.\nThe query result format is in the following example:\nFriendship table:\nLikes table:\nResult table:\nUser one is friend with users 2, 3, 4 and 6.\nSuggested pages are 23 from user 2, 24 from user 3, 56 from user 3 and 33 from user 6.\nPage 77 is suggested from both user 2 and user 3.\nPage 88 is not suggested because user 1 already likes it.\nSolution\nselect distinct page_id as recommended_page\nfrom likes\nwhere user_id =\nany(select user2_id as id\nfrom friendship\nwhere user1_id = 1 or user2_id = 1 and user2_id !=1\nunion all\nselect user1_id\nfrom friendship\nwhere user2_id = 1)\nand page_id != all(select page_id from likes where user_id = 1)",
+    "solution_raw": "select distinct page_id as recommended_page\nfrom likes\nwhere user_id = \nany(select user2_id as id\nfrom friendship\nwhere user1_id = 1 or user2_id = 1 and user2_id !=1\nunion all\nselect user1_id\nfrom friendship\nwhere user2_id = 1) \nand page_id != all(select page_id from likes where user_id = 1)",
+    "metadata": {
+      "id": "SQL_73",
+      "title": "Page Recommnedations",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/page-recommnedations/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Page%20Recommnedations.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Transactions\nTable: Chargebacks\nChargebacks contains basic information regarding incoming chargebacks from some transactions placed in Transactions table.\ntrans_id is a foreign key to the id column of Transactions table.\nEach chargeback corresponds to a transaction made previously even if they were not approved.\nWrite an SQL query to find for each month and country, the number of approved transactions and their total amount, the number of chargebacks and their total amount.\nNote: In your query, given the month and country, ignore rows with all zeros.\nThe query result format is in the following example:\nTransactions table:\nChargebacks table:\nResult table:\nSolution\nwith t1 as\n(select country, extract('month' from trans_date), state, count(*) as approved_count, sum(amount) as approved_amount\nfrom transactions\nwhere state = 'approved'\ngroup by 1, 2, 3),\nt2 as(\nselect t.country, extract('month' from c.trans_date), sum(amount) as chargeback_amount, count(*) as chargeback_count\nfrom chargebacks c left join transactions t\non trans_id = id\ngroup by t.country, extract('month' from c.trans_date)),\nt3 as(\nselect t2.date_part, t2.country, coalesce(approved_count,0) as approved_count, coalesce(approved_amount,0) as approved_amount, coalesce(chargeback_count,0) as chargeback_count, coalesce(chargeback_amount,0) as chargeback_amount\nfrom t2 left join t1\non t2.date_part = t1.date_part and t2.country = t1.country),\nt4 as(\nselect t1.date_part, t1.country, coalesce(approved_count,0) as approved_count, coalesce(approved_amount,0) as approved_amount, coalesce(chargeback_count,0) as chargeback_count, coalesce(chargeback_amount,0) as chargeback_amount\nfrom t2 right join t1\non t2.date_part = t1.date_part and t2.country = t1.country)\nselect *\nfrom t3\nunion\nselect *\nfrom t4",
+    "solution_raw": "with t1 as\n(select country, extract('month' from trans_date), state, count(*) as approved_count, sum(amount) as approved_amount\nfrom transactions\nwhere state = 'approved'\ngroup by 1, 2, 3),\nt2 as(\nselect t.country, extract('month' from c.trans_date), sum(amount) as chargeback_amount, count(*) as chargeback_count\nfrom chargebacks c left join transactions t \non trans_id = id\ngroup by t.country, extract('month' from c.trans_date)),\n\nt3 as(\nselect t2.date_part, t2.country, coalesce(approved_count,0) as approved_count, coalesce(approved_amount,0) as approved_amount, coalesce(chargeback_count,0) as chargeback_count, coalesce(chargeback_amount,0) as chargeback_amount\nfrom t2 left join t1 \non t2.date_part = t1.date_part and t2.country = t1.country),\n\nt4 as(\nselect t1.date_part, t1.country, coalesce(approved_count,0) as approved_count, coalesce(approved_amount,0) as approved_amount, coalesce(chargeback_count,0) as chargeback_count, coalesce(chargeback_amount,0) as chargeback_amount\nfrom t2 right join t1 \non t2.date_part = t1.date_part and t2.country = t1.country)\n\nselect *\nfrom t3\nunion\nselect *\nfrom t4",
+    "metadata": {
+      "id": "SQL_74",
+      "title": "Monthly Transaction 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/monthly-transaction-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Monthly%20Transaction%202.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Views\nNote that equal author_id and viewer_id indicate the same person.\nWrite an SQL query to find all the people who viewed more than one article on the same date, sorted in ascending order by their id.\nThe query result format is in the following example:\nViews table:\nResult table:\nSolution\nselect distinct viewer_id as id#, count(distinct article_id) as total\nfrom views\ngroup by viewer_id, view_date\nhaving count(distinct article_id)>1\norder by 1",
+    "solution_raw": "select distinct viewer_id as id#, count(distinct article_id) as total\nfrom views\ngroup by viewer_id, view_date\nhaving count(distinct article_id)>1\norder by 1",
+    "metadata": {
+      "id": "SQL_75",
+      "title": "Article Views 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/article-views-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Article%20Views%202.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Movies\ntitle is the name of the movie.\nTable: Users\nTable: Movie_Rating\ncreated_at is the user's review date.\nWrite the following SQL query:\nFind the name of the user who has rated the greatest number of the movies.\nIn case of a tie, return lexicographically smaller user name.\nFind the movie name with the highest average rating in February 2020.\nIn case of a tie, return lexicographically smaller movie name.\nQuery is returned in 2 rows, the query result format is in the folowing example:\nMovies table:\nUsers table:\nMovie_Rating table:\nResult table:\nDaniel and Maria have rated 3 movies (\"Avengers\", \"Frozen 2\" and \"Joker\") but Daniel is smaller lexicographically.\nFrozen 2 and Joker have a rating average of 3.5 in February but Frozen 2 is smaller lexicographically.\nSolution\nselect name as results\nfrom(\n(select a.name\nfrom(\nselect name, count(*),\nrank() over(order by count(*) desc) as rk\nfrom movie_rating m\njoin users u\non m.user_id = u.user_id\ngroup by name, m.user_id\norder by rk, name) a\nlimit 1)\nunion\n(select title\nfrom(\nselect title, round(avg(rating),1) as rnd\nfrom movie_rating m\njoin movies u\non m.movie_id = u.movie_id\nwhere month(created_at) = 2\ngroup by title\norder by rnd desc, title) b\nlimit 1)) as d",
+    "solution_raw": "select name as results\nfrom(\n(select a.name\nfrom(\nselect name, count(*),\nrank() over(order by count(*) desc) as rk\nfrom movie_rating m\njoin users u \non m.user_id = u.user_id\ngroup by name, m.user_id\norder by rk, name) a\nlimit 1)\nunion\n(select title\nfrom(\nselect title, round(avg(rating),1) as rnd\nfrom movie_rating m\njoin movies u\non m.movie_id = u.movie_id\nwhere month(created_at) = 2\ngroup by title\norder by rnd desc, title) b\nlimit 1)) as d",
+    "metadata": {
+      "id": "SQL_76",
+      "title": "Movie Rating",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/movie-rating/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Movie%20Rating.sql"
+    }
+  },
+  {
+    "vector_content": "operator is an enum that takes one of the values ('<', '>', '=')\nThe values of left_operand and right_operand are guaranteed to be in the Variables table.\nWrite an SQL query to evaluate the boolean expressions in Expressions table.\nThe query result format is in the following example.\nVariables table:\nExpressions table:\nResult table:\nSolution\nwith t1 as(\nselect e.left_operand, e.operator, e.right_operand, v.value as left_val, v_1.value as right_val\nfrom expressions e\njoin variables v\non v.name = e.left_operand\njoin variables v_1\non v_1.name = e.right_operand)\nselect t1.left_operand, t1.operator, t1.right_operand,\ncase when t1.operator = '<' then (select t1.left_val< t1.right_val)\nwhen t1.operator = '>' then (select t1.left_val > t1.right_val)\nwhen t1.operator = '=' then (select t1.left_val = t1.right_val)\nelse FALSE\nEND AS VALUE\nfrom t1",
+    "solution_raw": "with t1 as(\nselect e.left_operand, e.operator, e.right_operand, v.value as left_val, v_1.value as right_val\nfrom expressions e\njoin variables v\non v.name = e.left_operand \njoin variables v_1\non v_1.name = e.right_operand)\n\nselect t1.left_operand, t1.operator, t1.right_operand,\ncase when t1.operator = '<' then (select t1.left_val< t1.right_val)\nwhen t1.operator = '>' then (select t1.left_val > t1.right_val)\nwhen t1.operator = '=' then (select t1.left_val = t1.right_val)\nelse FALSE\nEND AS VALUE\nfrom t1",
+    "metadata": {
+      "id": "SQL_77",
+      "title": "Evaluate Boolean Expressions",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/evaluate-boolean-expressions/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Evaluate%20Boolean%20Expressions.sql"
+    }
+  },
+  {
+    "vector_content": "Write a query to find the shortest distance between these points rounded to 2 decimals.\nThe shortest distance is 1.00 from point (-1,-1) to (-1,2). So the output should be:\nNote: The longest distance among all the points are less than 10000.\nSolution\nselect round(a.shortest,2) as shortest\nfrom(\nselect sqrt(pow((p1.x-p2.x),2)+pow((p1.y-p2.y),2)) as shortest\nfrom point_2d p1\ncross join point_2d p2\nwhere p1.x!=p2.x or p1.y!=p2.y\norder by sqrt(pow((p1.x-p2.x),2)+pow((p1.y-p2.y),2))\nlimit 1) a",
+    "solution_raw": "select round(a.shortest,2) as shortest\nfrom(\nselect sqrt(pow((p1.x-p2.x),2)+pow((p1.y-p2.y),2)) as shortest\nfrom point_2d p1\ncross join point_2d p2\nwhere p1.x!=p2.x or p1.y!=p2.y\norder by sqrt(pow((p1.x-p2.x),2)+pow((p1.y-p2.y),2))\nlimit 1) a",
+    "metadata": {
+      "id": "SQL_78",
+      "title": "Shortest Distance In A Plane",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/shortest-distance-in-a-plane/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Shortest%20distance%20in%20a%20plane.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Queue\nThe person_id and turn columns will contain all numbers from 1 to n, where n is the number of rows in the table.\nThe maximum weight the elevator can hold is 1000.\nWrite an SQL query to find the person_name of the last person who will fit in the elevator without exceeding the weight limit. It is guaranteed that the person who is first in the queue can fit in the elevator.\nThe query result format is in the following example:\nQueue table\nResult table\nIn the example George Washington(id 5), John Adams(id 3) and Thomas Jefferson(id 6) will enter the elevator as their weight sum is 250 + 350 + 400 = 1000.\nThomas Jefferson(id 6) is the last person to fit in the elevator because he has the last turn in these three people.\nSolution\nWith t1 as\n(\nselect *,\nsum(weight) over(order by turn) as cum_weight\nfrom queue\norder by turn)\nselect t1.person_name\nfrom t1\nwhere turn = (select max(turn) from t1 where t1.cum_weight<=1000)",
+    "solution_raw": "With t1 as\n(\nselect *,\nsum(weight) over(order by turn) as cum_weight\nfrom queue\norder by turn)\n\nselect t1.person_name\nfrom t1\nwhere turn = (select max(turn) from t1 where t1.cum_weight<=1000)",
+    "metadata": {
+      "id": "SQL_79",
+      "title": "Last Person To Fit In The Elevator",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/last-person-to-fit-in-the-elevator/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Last%20person%20to%20fit%20in%20the%20elevator.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Sales\nWrite an SQL query to report the difference between number of apples and oranges sold each day.\nThe query result format is in the following example:\nSales table:\nResult table:\nDay 2020-05-01, 10 apples and 8 oranges were sold (Difference  10 - 8 = 2).\nDay 2020-05-02, 15 apples and 15 oranges were sold (Difference 15 - 15 = 0).\nDay 2020-05-03, 20 apples and 0 oranges were sold (Difference 20 - 0 = 20).\nDay 2020-05-04, 15 apples and 16 oranges were sold (Difference 15 - 16 = -1).\nSolution\nSelect sale_date, sold_num-sold as diff\nfrom\n((select *\nfrom sales\nwhere fruit = 'apples') a\njoin\n(select sale_date as sale, fruit, sold_num as sold\nfrom sales\nwhere fruit = 'oranges') b\non a.sale_date = b.sale)",
+    "solution_raw": "Select sale_date, sold_num-sold as diff\nfrom \n((select *\nfrom sales\nwhere fruit = 'apples') a\njoin \n(select sale_date as sale, fruit, sold_num as sold\nfrom sales\nwhere fruit = 'oranges') b\non a.sale_date = b.sale)",
+    "metadata": {
+      "id": "SQL_80",
+      "title": "Apples & Oranges",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/apples-&-oranges/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Apples%20%26%20Oranges.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Customer\nproduct_key is a foreign key to Product table.\nTable: Product\nFor example:\nCustomer table:\nProduct table:\nResult table:\nThe customers who bought all the products (5 and 6) are customers with id 1 and 3.\nSolution\nselect customer_id\nfrom customer\ngroup by customer_id\nhaving count(distinct product_key) = (select COUNT(distinct product_key) from product)",
+    "solution_raw": "select customer_id\nfrom customer\ngroup by customer_id\nhaving count(distinct product_key) = (select COUNT(distinct product_key) from product)",
+    "metadata": {
+      "id": "SQL_81",
+      "title": "Customers Who Bought All Products",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/customers-who-bought-all-products/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Customers%20who%20bought%20all%20products.sql"
+    }
+  },
+  {
+    "vector_content": "Write a query to print the sum of all total investment values in 2016 (TIV_2016), to a scale of 2 decimal places, for all policy holders who meet the following criteria:\nHave the same TIV_2015 value as one or more other policyholders.\nAre not located in the same city as any other policyholder (i.e.: the (latitude, longitude) attribute pairs must be unique).\nInput Format:\nwhere PID is the policyholder's policy ID, TIV_2015 is the total investment value in 2015, TIV_2016 is the total investment value in 2016, LAT is the latitude of the policy holder's city, and LON is the longitude of the policy holder's city.\nSample Input\nSample Output\nExplanation\nThe first record in the table, like the last record, meets both of the two criteria.\nThe TIV_2015 value '10' is as the same as the third and forth record, and its location unique.\nThe second record does not meet any of the two criteria. Its TIV_2015 is not like any other policyholders.\nAnd its location is the same with the third record, which makes the third record fail, too.\nSo, the result is the sum of TIV_2016 of the first and last record, which is 45.\nSolution\nselect sum(TIV_2016) TIV_2016\nfrom\n(select *, count(*) over (partition by TIV_2015) as c1, count(*) over (partition by LAT, LON) as c2\nfrom insurance ) t\nwhere c1 > 1 and c2 = 1;",
+    "solution_raw": "select sum(TIV_2016) TIV_2016\nfrom \n(select *, count(*) over (partition by TIV_2015) as c1, count(*) over (partition by LAT, LON) as c2\nfrom insurance ) t\nwhere c1 > 1 and c2 = 1;",
+    "metadata": {
+      "id": "SQL_82",
+      "title": "Investments In 2016",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/investments-in-2016/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Investments%20in%202016.sql"
+    }
+  },
+  {
+    "vector_content": "The column id is continuous increment.\nMary wants to change seats for the adjacent students.\nCan you write a SQL query to output the result for Mary?\nFor the sample input, the output is:\nSolution\nselect row_number() over (order by (if(id%2=1,id+1,id-1))) as id, student\nfrom seat",
+    "solution_raw": "select row_number() over (order by (if(id%2=1,id+1,id-1))) as id, student\nfrom seat",
+    "metadata": {
+      "id": "SQL_83",
+      "title": "Exchange Seats",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/exchange-seats/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Exchange%20Seats.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL query to find all numbers that appear at least three times consecutively.\nFor example, given the above Logs table, 1 is the only number that appears consecutively for at least three times.\nSolution\nselect distinct a.num as ConsecutiveNums\nfrom(\nselect *,\nlag(num) over() as prev,\nlead(num) over() as next\nfrom logs) a\nwhere a.num = a.prev and a.num=a.next",
+    "solution_raw": "select distinct a.num as ConsecutiveNums\nfrom(\nselect *,\nlag(num) over() as prev,\nlead(num) over() as next\nfrom logs) a\nwhere a.num = a.prev and a.num=a.next",
+    "metadata": {
+      "id": "SQL_84",
+      "title": "Consecutive Numbers",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/consecutive-numbers/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Consecutive%20Numbers.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Customers\ncustomer_name is the name of the customer.\nTable: Orders\ncustomer_id is the id of the customer who bought the product \"product_name\".\nWrite an SQL query to report the customer_id and customer_name of customers who bought products \"A\", \"B\" but did not buy the product \"C\" since we want to recommend them buy this product.\nThe query result format is in the following example.\nCustomers table:\nOrders table:\nResult table:\nOnly the customer_id with id 3 bought the product A and B but not the product C.\nSolution\nwith t1 as\n(\nselect customer_id\nfrom orders\nwhere product_name = 'B' and\ncustomer_id in (select customer_id\nfrom orders\nwhere product_name = 'A'))\nSelect t1.customer_id, c.customer_name\nfrom t1 join customers c\non t1.customer_id = c.customer_id\nwhere t1.customer_id != all(select customer_id\nfrom orders\nwhere product_name = 'C')",
+    "solution_raw": "with t1 as\n(\nselect customer_id\nfrom orders\nwhere product_name = 'B' and\ncustomer_id in (select customer_id\nfrom orders\nwhere product_name = 'A'))\n\nSelect t1.customer_id, c.customer_name\nfrom t1 join customers c\non t1.customer_id = c.customer_id\nwhere t1.customer_id != all(select customer_id\nfrom orders\nwhere product_name = 'C')",
+    "metadata": {
+      "id": "SQL_85",
+      "title": "Customers Who Bought A, B But Not C",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/customers-who-bought-a,-b-but-not-c/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Customers%20who%20bought%20a%2C%20b%20but%20not%20c.sql"
+    }
+  },
+  {
+    "vector_content": "Table: NPV\nTable: Queries\nWrite an SQL query to find the npv of all each query of queries table.\nThe query result format is in the following example:\nNPV table:\nQueries table:\nResult table:\nThe npv value of (7, 2018) is not present in the NPV table, we consider it 0.\nThe npv values of all other queries can be found in the NPV table.\nSolution\nselect q.id, q.year, coalesce(n.npv,0) as npv\nfrom queries q\nleft join npv n\non q.id = n.id and q.year=n.year",
+    "solution_raw": "select q.id, q.year, coalesce(n.npv,0) as npv\nfrom queries q\nleft join npv n\non q.id = n.id and q.year=n.year",
+    "metadata": {
+      "id": "SQL_86",
+      "title": "Npv Queries",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/npv-queries/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/NPV%20Queries.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Transactions\nWrite an SQL query to find for each month and country, the number of transactions and their total amount, the number of approved transactions and their total amount.\nThe query result format is in the following example:\nTransactions table:\nResult table:\nSolution\nwith t1 as(\nselect DATE_FORMAT(trans_date,'%Y-%m') as month, country, count(state) as trans_count, sum(amount) as trans_total_amount\nfrom transactions\ngroup by country, month(trans_date)),\nt2 as (\nSelect DATE_FORMAT(trans_date,'%Y-%m') as month, country, count(state) as approved_count, sum(amount) as approved_total_amount\nfrom transactions\nwhere state = 'approved'\ngroup by country, month(trans_date))\nselect t1.month, t1.country, coalesce(t1.trans_count,0) as trans_count, coalesce(t2.approved_count,0) as approved_count, coalesce(t1.trans_total_amount,0) as trans_total_amount, coalesce(t2.approved_total_amount,0) as approved_total_amount\nfrom t1 left join t2\non t1.country = t2.country and t1.month = t2.month",
+    "solution_raw": "with t1 as(\nselect DATE_FORMAT(trans_date,'%Y-%m') as month, country, count(state) as trans_count, sum(amount) as trans_total_amount\nfrom transactions\ngroup by country, month(trans_date)),\n\nt2 as (\nSelect DATE_FORMAT(trans_date,'%Y-%m') as month, country, count(state) as approved_count, sum(amount) as approved_total_amount\nfrom transactions\nwhere state = 'approved'\ngroup by country, month(trans_date))\n\nselect t1.month, t1.country, coalesce(t1.trans_count,0) as trans_count, coalesce(t2.approved_count,0) as approved_count, coalesce(t1.trans_total_amount,0) as trans_total_amount, coalesce(t2.approved_total_amount,0) as approved_total_amount\nfrom t1 left join t2\non t1.country = t2.country and t1.month = t2.month",
+    "metadata": {
+      "id": "SQL_87",
+      "title": "Monthly Transactions 1",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/monthly-transactions-1/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Monthly%20Transactions%201.sql"
+    }
+  },
+  {
+    "vector_content": "id means user id; action has these kind of values: \"show\", \"answer\", \"skip\"; answer_id is not null when action column is \"answer\",\nwhile is null for \"show\" and \"skip\"; q_num is the numeral order of the question in current session.\nWrite a sql query to identify the question which has the highest answer rate.\nExample:\nInput:\nOutput:\nExplanation:\nquestion 285 has answer rate 1/1, while question 369 has 0/1 answer rate, so output 285.\nNote: The highest answer rate meaning is: answer number's ratio in show number in the same question.\nSolution\nwith t1 as(\nselect a.question_id, coalesce(b.answer/a.show_1,0) as rate\nfrom\n(select question_id, coalesce(count(*),0) as show_1\nfrom survey_log\nwhere action != 'answer'\ngroup by question_id) a\nleft join\n(select question_id, coalesce(count(*),0) as answer\nfrom survey_log\nwhere action = 'answer'\ngroup by question_id) b\non a.question_id = b.question_id)\nselect a.question_id as survey_log\nfrom\n( select t1.question_id,\nrank() over(order by rate desc) as rk\nfrom t1) a\nwhere a.rk = 1",
+    "solution_raw": "with t1 as(\nselect a.question_id, coalesce(b.answer/a.show_1,0) as rate\nfrom \n(select question_id, coalesce(count(*),0) as show_1\nfrom survey_log\nwhere action != 'answer'\ngroup by question_id) a\nleft join\n(select question_id, coalesce(count(*),0) as answer\nfrom survey_log\nwhere action = 'answer'\ngroup by question_id) b\non a.question_id = b.question_id)\n\nselect a.question_id as survey_log\nfrom \n( select t1.question_id,\nrank() over(order by rate desc) as rk\nfrom t1) a\nwhere a.rk = 1",
+    "metadata": {
+      "id": "SQL_88",
+      "title": "Get Highest Answer Rate Question",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/get-highest-answer-rate-question/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Get%20highest%20answer%20rate%20question.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Project\nemployee_id is a foreign key to Employee table.\nTable: Employee\nWrite an SQL query that reports the most experienced employees in each project.\nIn case of a tie, report all employees with the maximum number of experience years.\nThe query result format is in the following example:\nProject table:\nEmployee table:\nResult table:\nBoth employees with id 1 and 3 have the\nmost experience among the employees of the first project. For the second project, the employee with id 1 has the most experience.\nSolution\nwith t1 as(\nselect p.project_id, p.employee_id, e.experience_years,\nrank() over(partition by project_id order by experience_years desc) as rk\nfrom project p\njoin employee e\non p.employee_id = e.employee_id)\nselect t1.project_id, t1.employee_id\nfrom t1\nwhere t1.rk = 1",
+    "solution_raw": "with t1 as(\nselect p.project_id, p.employee_id, e.experience_years,\nrank() over(partition by project_id order by experience_years desc) as rk\nfrom project p\njoin employee e\non p.employee_id = e.employee_id)\n\nselect t1.project_id, t1.employee_id\nfrom t1\nwhere t1.rk = 1",
+    "metadata": {
+      "id": "SQL_89",
+      "title": "Project Employees 3",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/project-employees-3/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Project%20Employees%203.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL query to get the nth highest salary from the Employee table.\nFor example, given the above Employee table, the nth highest salary where n = 2 is 200. If there is no nth highest salary, then the query should return null.\nSolution\nCREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT\nBEGIN\nRETURN (\n# Write your MySQL query statement below.\nselect distinct a.salary\nfrom\n(select salary,\ndense_rank() over(order by salary desc) as rk\nfrom Employee) a\nwhere a.rk = N\n);\nEND",
+    "solution_raw": "CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT\nBEGIN\n  RETURN (\n      # Write your MySQL query statement below.\n      select distinct a.salary\n      from\n      (select salary, \n      dense_rank() over(order by salary desc) as rk\n      from Employee) a\n      where a.rk = N\n  );\nEND",
+    "metadata": {
+      "id": "SQL_90",
+      "title": "Nth Highest Salary",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/nth-highest-salary/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Nth%20Highest%20salary.sql"
+    }
+  },
+  {
+    "vector_content": "Leaf: if the node is a leaf node.\nRoot: if the node is the root of the tree.\nInner: If the node is neither a leaf node nor a root node.\nExplanation\nNode '1' is root node, because its parent node is NULL and it has child node '2' and '3'.\nNode '2' is inner node, because it has parent node '1' and child node '4' and '5'.\nNode '3', '4' and '5' is Leaf node, because they have parent node and they don't have child node.\nAnd here is the image of the sample tree as below:\n1\n/   \\\n2       3\n/   \\\n4       5\nNote\nIf there is only one node on the tree, you only need to output its root attributes.\nSolution\nselect id,\ncase when p_id is null then 'Root'\nwhen id not in (select p_id from tree where p_id is not null group by p_id) then 'Leaf'\nelse 'Inner'\nfrom tree\norder by id",
+    "solution_raw": "select id,\ncase when p_id is null then 'Root'\nwhen id not in (select p_id from tree where p_id is not null group by p_id) then 'Leaf'\nelse 'Inner'\nend as Type\nfrom tree\norder by id",
+    "metadata": {
+      "id": "SQL_91",
+      "title": "Tree Node",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/tree-node/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Tree%20Node.sql"
+    }
+  },
+  {
+    "vector_content": "Write a SQL query to rank scores.\nIf there is a tie between two scores, both should have the same ranking.\nNote that after a tie, the next ranking number should be the next consecutive integer value.\nIn other words, there should be no \"holes\" between ranks.\nFor example, given the above Scores table, your query should generate the following report (order by highest score):\nyou can use an apostrophe before and after the keyword. For example `Rank`.\nSolution\nselect Score,\ndense_rank() over(order by score desc) as \"Rank\"\nfrom scores",
+    "solution_raw": "select Score,\ndense_rank() over(order by score desc) as \"Rank\"\nfrom scores",
+    "metadata": {
+      "id": "SQL_92",
+      "title": "Rank Scores",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/rank-scores/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Rank%20scores.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Activity\nEach row is a record of a player who logged in and played a number of games (possibly 0) before logging out on some day using some device.\nWrite an SQL query that reports for each player and date, how many games played so far by the player. That is, the total number of games played by the player until that date. Check the example for clarity.\nThe query result format is in the following example:\nActivity table:\nResult table:\nFor the player with id 1, 5 + 6 = 11 games played by 2016-05-02, and 5 + 6 + 1 = 12 games played by 2017-06-25.\nFor the player with id 3, 0 + 5 = 5 games played by 2018-07-03.\nNote that for each player we only care about the days when the player logged in.\nSolution\nselect player_id, event_date,\nsum(games_played) over(partition by player_id order by event_date) as games_played_so_far\nfrom activity\norder by 1,2",
+    "solution_raw": "select player_id, event_date, \nsum(games_played) over(partition by player_id order by event_date) as games_played_so_far\nfrom activity\norder by 1,2",
+    "metadata": {
+      "id": "SQL_93",
+      "title": "Game Play Analysis 3",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/game-play-analysis-3/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Game%20Play%20Analysis%203.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Sales\nproduct_id is a foreign key to Product table.\nNote that the price is per unit.\nTable: Product\nWrite an SQL query that selects the product id, year, quantity, and price for the first year of every product sold.\nThe query result format is in the following example:\nSales table:\nProduct table:\nResult table:\nSolution\nselect a.product_id, a.year as first_year, a.quantity, a.price\nfrom\n( select product_id, quantity, price, year,\nrank() over(partition by product_id order by year) as rk\nfrom sales\n) a\nwhere a.rk = 1",
+    "solution_raw": "select a.product_id, a.year as first_year, a.quantity, a.price\nfrom\n( select product_id, quantity, price, year,\n  rank() over(partition by product_id order by year) as rk\n  from sales\n) a\nwhere a.rk = 1",
+    "metadata": {
+      "id": "SQL_94",
+      "title": "Product Sales Analysis 3",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/product-sales-analysis-3/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Product%20Sales%20Analysis%203.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Delivery\nIf the preferred delivery date of the customer is the same as the order date then the order is called immediate otherwise it's called scheduled.\nThe first order of a customer is the order with the earliest order date that customer made. It is guaranteed that a customer has exactly one first order.\nWrite an SQL query to find the percentage of immediate orders in the first orders of all customers, rounded to 2 decimal places.\nThe query result format is in the following example:\nDelivery table:\nResult table:\nThe customer id 1 has a first order with delivery id 1 and it is scheduled.\nThe customer id 2 has a first order with delivery id 2 and it is immediate.\nThe customer id 3 has a first order with delivery id 5 and it is scheduled.\nThe customer id 4 has a first order with delivery id 7 and it is immediate.\nHence, half the customers have immediate first orders.\nSolution\nselect\nround(avg(case when order_date = customer_pref_delivery_date then 1 else 0 end)*100,2) as\nimmediate_percentage\nfrom\n(select *,\nrank() over(partition by customer_id order by order_date) as rk\nfrom delivery) a\nwhere a.rk=1",
+    "solution_raw": "select \nround(avg(case when order_date = customer_pref_delivery_date then 1 else 0 end)*100,2) as\nimmediate_percentage\nfrom \n(select *,\n rank() over(partition by customer_id order by order_date) as rk\nfrom delivery) a\nwhere a.rk=1",
+    "metadata": {
+      "id": "SQL_95",
+      "title": "Immediate Food Delivery 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/immediate-food-delivery-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Immediate%20Food%20Delivery%202.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Points\nEach point is represented as a 2D Dimensional (x_value, y_value).\nWrite an SQL query to report of all possible rectangles which can be formed by any two points of the table.\nEach row in the result contains three columns (p1, p2, area) where:\np1 and p2 are the id of two opposite corners of a rectangle and p1 < p2.\nArea of this rectangle is represented by the column area.\nReport the query in descending order by area in case of tie in ascending order by p1 and p2.\nPoints table:\nResult table:\np1 should be less than p2 and area greater than 0.\np1 = 1 and p2 = 2, has an area equal to |2-4| * |8-7| = 2.\np1 = 2 and p2 = 3, has an area equal to |4-2| * |7-10| = 6.\np1 = 1 and p2 = 3 It's not possible because the rectangle has an area equal to 0.\nSolution\nselect p1.id as p1, p2.id as p2, abs(p1.x_value-p2.x_value)*abs(p1.y_value-p2.y_value) as area\nfrom points p1 cross join points p2\nwhere p1.x_value!=p2.x_value and p1.y_value!=p2.y_value and p1.id<p2.id\norder by area desc, p1, p2",
+    "solution_raw": "select p1.id as p1, p2.id as p2, abs(p1.x_value-p2.x_value)*abs(p1.y_value-p2.y_value) as area\nfrom points p1 cross join points p2\nwhere p1.x_value!=p2.x_value and p1.y_value!=p2.y_value and p1.id<p2.id\norder by area desc, p1, p2",
+    "metadata": {
+      "id": "SQL_96",
+      "title": "Rectangles Area",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/rectangles-area/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Rectangles%20Area.sql"
+    }
+  },
+  {
+    "vector_content": "Table: UserActivity\nA person with username performed a activity from startDate to endDate.\nWrite an SQL query to show the second most recent activity of each user.\nIf the user only has one activity, return that one.\nThe query result format is in the following example:\nUserActivity table:\nResult table:\nThe most recent activity of Alice is Travel from 2020-02-24 to 2020-02-28, before that she was dancing from 2020-02-21 to 2020-02-23.\nBob only has one record, we just take that one.\nSolution\nselect username, activity, startdate, enddate\nfrom\n(select *,\nrank() over(partition by username order by startdate desc) as rk,\ncount(username) over(partition by username) as cnt\nfrom useractivity) a\nwhere a.rk = 2 or cnt = 1",
+    "solution_raw": "select username, activity, startdate, enddate\nfrom\n(select *,\nrank() over(partition by username order by startdate desc) as rk,\ncount(username) over(partition by username) as cnt\nfrom useractivity) a\nwhere a.rk = 2 or cnt = 1",
+    "metadata": {
+      "id": "SQL_97",
+      "title": "Get The Second Most Recent Activity",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/get-the-second-most-recent-activity/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Get%20the%20second%20most%20recent%20activity.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Customer\nvisited_on is the date on which the customer with ID (customer_id) have visited the restaurant.\namount is the total paid by a customer.\nYou are the restaurant owner and you want to analyze a possible expansion (there will be at least one customer every day).\nWrite an SQL query to compute moving average of how much customer paid in a 7 days window (current day + 6 days before) .\nThe query result format is in the following example:\naverage_amount should be rounded to 2 decimal places, all dates are in the format ('YYYY-MM-DD').\nCustomer table:\nResult table:\n1st moving average from 2019-01-01 to 2019-01-07 has an average_amount of (100 + 110 + 120 + 130 + 110 + 140 + 150)/7 = 122.86\n2nd moving average from 2019-01-02 to 2019-01-08 has an average_amount of (110 + 120 + 130 + 110 + 140 + 150 + 80)/7 = 120\n3rd moving average from 2019-01-03 to 2019-01-09 has an average_amount of (120 + 130 + 110 + 140 + 150 + 80 + 110)/7 = 120\n4th moving average from 2019-01-04 to 2019-01-10 has an average_amount of (130 + 110 + 140 + 150 + 80 + 110 + 130 + 150)/7 = 142.86\nSolution\nselect visited_on, sum(amount) over(order by visited_on rows 6 preceding),\nround(avg(amount) over(order by visited_on rows 6 preceding),2)\nfrom\n(\nselect visited_on, sum(amount) as amount\nfrom customer\ngroup by visited_on\norder by visited_on\n) a\norder by visited_on offset 6 rows",
+    "solution_raw": "select visited_on, sum(amount) over(order by visited_on rows 6 preceding),\nround(avg(amount) over(order by visited_on rows 6 preceding),2)\nfrom \n(\n\tselect visited_on, sum(amount) as amount\n\tfrom customer\n\tgroup by visited_on\n\torder by visited_on\n) a\norder by visited_on offset 6 rows",
+    "metadata": {
+      "id": "SQL_98",
+      "title": "Restaurant Growth",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/restaurant-growth/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Restaurant%20growth.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Employees\nwork to his/her direct manager with manager_id\nThe head of the company is the employee with employee_id = 1.\nWrite an SQL query to find employee_id of all employees that directly or indirectly report their work to the head of the company.\nThe indirect relation between managers will not exceed 3 managers as the company is small.\nThe query result format is in the following example:\nEmployees table:\nResult table:\nThe head of the company is the employee with employee_id 1.\nThe employees with employee_id 2 and 77 report their work directly to the head of the company.\nThe employee with employee_id 4 report his work indirectly to the head of the company 4 --> 2 --> 1.\nThe employee with employee_id 7 report his work indirectly to the head of the company 7 --> 4 --> 2 --> 1.\nThe employees with employee_id 3, 8 and 9 don't report their work to head of company directly or indirectly.\nSolution\nselect employee_id\nfrom employees\nwhere manager_id = 1 and employee_id != 1\nunion\nselect employee_id\nfrom employees\nwhere manager_id = any (select employee_id\nfrom employees\nwhere manager_id = 1 and employee_id != 1)\nunion\nselect employee_id\nfrom employees\nwhere manager_id = any (select employee_id\nfrom employees\nwhere manager_id = any (select employee_id\nfrom employees\nwhere manager_id = 1 and employee_id != 1))",
+    "solution_raw": "select employee_id\nfrom employees\nwhere manager_id = 1 and employee_id != 1\nunion\nselect employee_id\nfrom employees\nwhere manager_id = any (select employee_id\nfrom employees\nwhere manager_id = 1 and employee_id != 1)\nunion\nselect employee_id\nfrom employees\nwhere manager_id = any (select employee_id\nfrom employees\nwhere manager_id = any (select employee_id\nfrom employees\nwhere manager_id = 1 and employee_id != 1))",
+    "metadata": {
+      "id": "SQL_99",
+      "title": "All People Report To The Given Manager",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/all-people-report-to-the-given-manager/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/All%20people%20report%20to%20the%20given%20manager.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Stocks\nIt is guaranteed that each 'Sell' operation for a stock has a corresponding 'Buy' operation in a previous day.\nWrite an SQL query to report the Capital gain/loss for each stock.\nThe capital gain/loss of a stock is total gain or loss after buying and selling the stock one or many times.\nThe query result format is in the following example:\nStocks table:\nResult table:\nLeetcode stock was bought at day 1 for 1000$ and was sold at day 5 for 9000$. Capital gain = 9000 - 1000 = 8000$.\nHandbags stock was bought at day 17 for 30000$ and was sold at day 29 for 7000$. Capital loss = 7000 - 30000 = -23000$.\nCorona Masks stock was bought at day 1 for 10$ and was sold at day 3 for 1010$. It was bought again at day 4 for 1000$ and was sold at day 5 for 500$. At last, it was bought at day 6 for 1000$ and was sold at day 10 for 10000$. Capital gain/loss is the sum of capital gains/losses for each ('Buy' --> 'Sell')\noperation = (1010 - 10) + (500 - 1000) + (10000 - 1000) = 1000 - 500 + 9000 = 9500$.\nSolution\nselect stock_name, (one-two) as capital_gain_loss\nfrom(\n(select stock_name, sum(price) as one\nfrom stocks\nwhere operation = 'Sell'\ngroup by stock_name) b\nleft join\n(select stock_name as name, sum(price) as two\nfrom stocks\nwhere operation = 'Buy'\ngroup by stock_name) c\non b.stock_name = c.name)\norder by capital_gain_loss desc",
+    "solution_raw": "select stock_name, (one-two) as capital_gain_loss\nfrom(\n(select stock_name, sum(price) as one\nfrom stocks\nwhere operation = 'Sell'\ngroup by stock_name) b\nleft join\n(select stock_name as name, sum(price) as two\nfrom stocks\nwhere operation = 'Buy'\ngroup by stock_name) c\non b.stock_name = c.name)\norder by capital_gain_loss desc",
+    "metadata": {
+      "id": "SQL_100",
+      "title": "Capital Gain",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/capital-gain/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Capital%20Gain.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Actions\nTable: Removals\nWrite an SQL query to find the average for daily percentage of posts that got removed after being reported as spam, rounded to 2 decimal places.\nThe query result format is in the following example:\nActions table:\nRemovals table:\nResult table:\nThe percentage for 2019-07-04 is 50% because only one post of two spam reported posts was removed.\nThe percentage for 2019-07-02 is 100% because one post was reported as spam and it was removed.\nThe other days had no spam reports so the average is (50 + 100) / 2 = 75%\nNote that the output is only one number and that we do not care about the remove dates.\nSolution\nwith t1 as(\nselect a.action_date, (count(distinct r.post_id)+0.0)/(count(distinct a.post_id)+0.0) as result\nfrom (select action_date, post_id\nfrom actions\nwhere extra = 'spam' and action = 'report') a\nleft join\nremovals r\non a.post_id = r.post_id\ngroup by a.action_date)\nselect round(avg(t1.result)*100,2) as  average_daily_percent\nfrom t1",
+    "solution_raw": "with t1 as(\nselect a.action_date, (count(distinct r.post_id)+0.0)/(count(distinct a.post_id)+0.0) as result\nfrom (select action_date, post_id\nfrom actions\nwhere extra = 'spam' and action = 'report') a\nleft join\nremovals r\non a.post_id = r.post_id\ngroup by a.action_date)\n\nselect round(avg(t1.result)*100,2) as  average_daily_percent\nfrom t1",
+    "metadata": {
+      "id": "SQL_101",
+      "title": "Reported Posts 2",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/reported-posts-2/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Reported%20Posts%202.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Scores\nA competition is held between females team and males team.\nGender is 'F' if the player is in females team and 'M' if the player is in males team.\nWrite an SQL query to find the total score for each gender at each day.\nThe query result format is in the following example:\nScores table:\nResult table:\nFor females team:\nFirst day is 2019-12-30, Priyanka scored 17 points and the total score for the team is 17.\nSecond day is 2019-12-31, Priya scored 23 points and the total score for the team is 40.\nThird day is 2020-01-01, Aron scored 17 points and the total score for the team is 57.\nFourth day is 2020-01-07, Alice scored 23 points and the total score for the team is 80.\nFor males team:\nFirst day is 2019-12-18, Jose scored 2 points and the total score for the team is 2.\nSecond day is 2019-12-25, Khali scored 11 points and the total score for the team is 13.\nThird day is 2019-12-30, Slaman scored 13 points and the total score for the team is 26.\nFourth day is 2019-12-31, Joe scored 3 points and the total score for the team is 29.\nFifth day is 2020-01-07, Bajrang scored 7 points and the total score for the team is 36.\nSolution\nselect gender, day,\nsum(score_points) over(partition by gender order by day) as total\nfrom scores\ngroup by 1,2\norder by 1,2",
+    "solution_raw": "select gender, day, \nsum(score_points) over(partition by gender order by day) as total\nfrom scores\ngroup by 1,2\norder by 1,2",
+    "metadata": {
+      "id": "SQL_102",
+      "title": "Running Total For Different Genders",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/running-total-for-different-genders/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Running%20total%20for%20different%20genders.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Activity\nEach row is a record of a player who logged in and played a number of games (possibly 0)\nbefore logging out on some day using some device.\nWrite an SQL query that reports the fraction of players that logged in again\non the day after the day they first logged in, rounded to 2 decimal places.\nIn other words, you need to count the number of players that logged in for at least two consecutive\ndays starting from their first login date, then divide that number by the total number of players.\nThe query result format is in the following example:\nActivity table:\nResult table:\nOnly the player with id 1 logged back in after the first day he had logged in so the answer is 1/3 = 0.33\nSolution\nWith t as\n(select player_id,\nmin(event_date) over(partition by player_id) as min_event_date,\ncase when event_date- min(event_date) over(partition by player_id) = 1 then 1\nelse 0\nend as s\nfrom Activity)\nselect round(sum(t.s)/count(distinct t.player_id),2) as fraction\nfrom t",
+    "solution_raw": "With t as \n(select player_id,\n min(event_date) over(partition by player_id) as min_event_date,\n case when event_date- min(event_date) over(partition by player_id) = 1 then 1 \n else 0 \n end as s\n from Activity)\n\nselect round(sum(t.s)/count(distinct t.player_id),2) as fraction \nfrom t",
+    "metadata": {
+      "id": "SQL_103",
+      "title": "Game Play Analysis 4",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/game-play-analysis-4/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Game%20Play%20Analysis%204.sql"
+    }
+  },
+  {
+    "vector_content": "Please write a sql query to get the amount of each follower’s follower if he/she has one.\nFor example:\nshould output:\nExplaination:\nBoth B and D exist in the follower list, when as a followee, B's follower is C and D, and D's follower is E. A does not exist in follower list.\nNote:\nFollowee would not follow himself/herself in all cases.\nPlease display the result in follower's alphabet order.\nSolution\nselect followee as follower, count(distinct(follower)) as num\nfrom follow\nwhere followee = any(select follower from follow)\ngroup by followee\norder by followee",
+    "solution_raw": "select followee as follower, count(distinct(follower)) as num\nfrom follow\nwhere followee = any(select follower from follow)\ngroup by followee\norder by followee",
+    "metadata": {
+      "id": "SQL_104",
+      "title": "Second Degree Follower",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/second-degree-follower/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Second%20degree%20follower.sql"
+    }
+  },
+  {
+    "vector_content": "Write an SQL query to find the salaries of the employees after applying taxes.\nThe tax rate is calculated for each company based on the following criteria:\n0% If the max salary of any employee in the company is less than 1000$.\n24% If the max salary of any employee in the company is in the range [1000, 10000] inclusive.\n49% If the max salary of any employee in the company is greater than 10000$.\nThe query result format is in the following example:\nSalaries table:\nResult table:\nFor company 1, Max salary is 21300. Employees in company 1 have taxes = 49%\nFor company 2, Max salary is 700. Employees in company 2 have taxes = 0%\nFor company 3, Max salary is 7777. Employees in company 3 have taxes = 24%\nThe salary after taxes = salary - (taxes percentage / 100) * salary\nFor example, Salary for Morninngcat (3, 15) after taxes = 7777 - 7777 * (24 / 100) = 7777 - 1866.48 = 5910.52, which is rounded to 5911.\nSolution\nwith t1 as (\nselect company_id, employee_id, employee_name, salary as sa, max(salary) over(partition by company_id) as maximum\nfrom salaries)\nselect company_id, employee_id, employee_name,\ncase when t1.maximum<1000 then t1.sa\nwhen t1.maximum between 1000 and 10000 then round(t1.sa*.76,0)\nelse round(t1.sa*.51,0)\nend as salary\nfrom t1",
+    "solution_raw": "with t1 as (\nselect company_id, employee_id, employee_name, salary as sa, max(salary) over(partition by company_id) as maximum\nfrom salaries)\n\nselect company_id, employee_id, employee_name,\ncase when t1.maximum<1000 then t1.sa\nwhen t1.maximum between 1000 and 10000 then round(t1.sa*.76,0)\nelse round(t1.sa*.51,0)\nend as salary\nfrom t1",
+    "metadata": {
+      "id": "SQL_105",
+      "title": "Calculate Salaries",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/calculate-salaries/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Calculate%20Salaries.sql"
+    }
+  },
+  {
+    "vector_content": "Write an SQL query to find the id and the name of active users.\nActive users are those who logged in to their accounts for 5 or more consecutive days.\nThe query result format is in the following example:\nAccounts table:\nLogins table:\nResult table:\nUser Winston with id = 1 logged in 2 times only in 2 different days, so, Winston is not an active user.\nUser Jonathan with id = 7 logged in 7 times in 6 different days, five of them were consecutive days, so, Jonathan is an active user.\nSolution\nwith t1 as (\nselect id,login_date,\nlead(login_date,4) over(partition by id order by login_date) date_5\nfrom (select distinct * from Logins) b\n)\nselect distinct a.id, a.name from t1\ninner join accounts a\non t1.id = a.id\nwhere datediff(t1.date_5,login_date) = 4\norder by id",
+    "solution_raw": "with t1 as (\nselect id,login_date,\nlead(login_date,4) over(partition by id order by login_date) date_5\nfrom (select distinct * from Logins) b\n)\n\nselect distinct a.id, a.name from t1\ninner join accounts a \non t1.id = a.id\nwhere datediff(t1.date_5,login_date) = 4\norder by id",
+    "metadata": {
+      "id": "SQL_106",
+      "title": "Active Users",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/active-users/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Active%20Users.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Candidate\nTable: Vote\nCandidateId is the id appeared in Candidate table.\nWrite a sql to find the name of the winning candidate, the above example will return the winner B.\nNotes:\nYou may assume there is no tie, in other words there will be only one winning candidate\nSolution\nwith t1 as (\nselect *, rank() over(order by b.votes desc) as rk\nfrom candidate c\njoin\n(select candidateid, count(*) as votes\nfrom vote\ngroup by candidateid) b\non c.id = b.candidateid)\nselect t1.name\nfrom t1\nwhere t1.rk=1",
+    "solution_raw": "with t1 as (\nselect *, rank() over(order by b.votes desc) as rk\nfrom candidate c\njoin \n(select candidateid, count(*) as votes\nfrom vote\ngroup by candidateid) b\non c.id = b.candidateid)\n\nselect t1.name\nfrom t1\nwhere t1.rk=1",
+    "metadata": {
+      "id": "SQL_107",
+      "title": "Winning Candidate",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/winning-candidate/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Winning%20Candidate.sql"
+    }
+  },
+  {
+    "vector_content": "Phone number will be in the form 'xxx-yyyyyyy' where xxx is the country code (3 characters) and yyyyyyy is the\nphone number (7 characters) where x and y are digits. Both can contain leading zeros.\nA telecommunications company wants to invest in new countries. The country intends to invest in the countries where the average call duration of the calls in this country is strictly greater than the global average call duration.\nWrite an SQL query to find the countries where this company can invest.\nThe query result format is in the following example.\nPerson table:\nCountry table:\nCalls table:\nResult table:\nThe average call duration for Peru is (102 + 102 + 330 + 330 + 5 + 5) / 6 = 145.666667\nThe average call duration for Israel is (33 + 4 + 13 + 13 + 3 + 1 + 1 + 7) / 8 = 9.37500\nThe average call duration for Morocco is (33 + 4 + 59 + 59 + 3 + 7) / 6 = 27.5000\nGlobal call duration average = (2 * (33 + 3 + 59 + 102 + 330 + 5 + 13 + 3 + 1 + 7)) / 20 = 55.70000\nSince Peru is the only country where average call duration is greater than the global average, it's the only recommended country.\nSolution\nwith t1 as(\nselect caller_id as id, duration as total\nfrom\n(select caller_id, duration\nfrom calls\nunion all\nselect callee_id, duration\nfrom calls) a\n)\nselect name as country\nfrom\n(select distinct avg(total) over(partition by code) as avg_call, avg(total) over() as global_avg, c.name\nfrom\n((select *, coalesce(total,0) as duration, substring(phone_number from 1 for 3) as code\nfrom person right join t1\nusing (id)) b\njoin country c\non c.country_code = b.code)) d\nwhere avg_call > global_avg",
+    "solution_raw": "with t1 as(\nselect caller_id as id, duration as total\nfrom\n(select caller_id, duration\nfrom calls\nunion all\nselect callee_id, duration\nfrom calls) a\n)\nselect name as country\nfrom\n(select distinct avg(total) over(partition by code) as avg_call, avg(total) over() as global_avg, c.name\nfrom\n((select *, coalesce(total,0) as duration, substring(phone_number from 1 for 3) as code\nfrom person right join t1\nusing (id)) b\njoin country c\non c.country_code = b.code)) d\nwhere avg_call > global_avg",
+    "metadata": {
+      "id": "SQL_108",
+      "title": "Countries You Can Safely Invest In",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/countries-you-can-safely-invest-in/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Countries%20you%20can%20safely%20invest%20in.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Teams\nTable: Matches\nEach row is a record of a finished match between two different teams.\nYou would like to compute the scores of all teams after all matches. Points are awarded as follows:\nA team receives three points if they win a match (Score strictly more goals than the opponent team).\nA team receives one point if they draw a match (Same number of goals as the opponent team).\nA team receives no points if they lose a match (Score less goals than the opponent team).\nThe query result format is in the following example:\nTeams table:\nMatches table:\nResult table:\nSolution\nwith t1 as(\nSelect c.host_id, c.host_name, c.host_points\nfrom(\nselect a.match_id, a.team_id as host_id, a.team_name as host_name, b.team_id as guest_id, b.team_name as guest_name, a.host_goals, a.guest_goals,\ncase\nwhen a.host_goals > a.guest_goals then 3\nwhen a.host_goals = a.guest_goals then 1\nelse 0\nend as host_points,\ncase\nwhen a.host_goals < a.guest_goals then 3\nwhen a.host_goals = a.guest_goals then 1\nelse 0\nend as guest_points\nfrom(\nselect *\nfrom matches m\njoin teams t\non t.team_id = m.host_team) a\njoin\n(select *\nfrom matches m\njoin teams t\non t.team_id = m.guest_team) b\non a.match_id = b.match_id) c\nunion all\nSelect d.guest_id, d.guest_name, d.guest_points\nfrom(\nselect a.match_id, a.team_id as host_id, a.team_name as host_name, b.team_id as guest_id, b.team_name as guest_name, a.host_goals, a.guest_goals,\ncase\nwhen a.host_goals > a.guest_goals then 3\nwhen a.host_goals = a.guest_goals then 1\nelse 0\nend as host_points,\ncase\nwhen a.host_goals < a.guest_goals then 3\nwhen a.host_goals = a.guest_goals then 1\nelse 0\nend as guest_points\nfrom(\nselect *\nfrom matches m\njoin teams t\non t.team_id = m.host_team) a\njoin\n(select *\nfrom matches m\njoin teams t\non t.team_id = m.guest_team) b\non a.match_id = b.match_id) d)\nSelect team_id, team_name, coalesce(total,0) as num_points\nfrom teams t2\nleft join(\nselect host_id, host_name, sum(host_points) as total\nfrom t1\ngroup by host_id, host_name) e\non t2.team_id = e.host_id\norder by num_points desc, team_id",
+    "solution_raw": "with t1 as(\nSelect c.host_id, c.host_name, c.host_points\nfrom(\nselect a.match_id, a.team_id as host_id, a.team_name as host_name, b.team_id as guest_id, b.team_name as guest_name, a.host_goals, a.guest_goals,\ncase\nwhen a.host_goals > a.guest_goals then 3\nwhen a.host_goals = a.guest_goals then 1\nelse 0\nend as host_points,\ncase\nwhen a.host_goals < a.guest_goals then 3\nwhen a.host_goals = a.guest_goals then 1\nelse 0\nend as guest_points\nfrom(\nselect *\nfrom matches m\njoin teams t\non t.team_id = m.host_team) a\njoin\n(select *\nfrom matches m\njoin teams t\non t.team_id = m.guest_team) b\non a.match_id = b.match_id) c\nunion all\nSelect d.guest_id, d.guest_name, d.guest_points\nfrom(\nselect a.match_id, a.team_id as host_id, a.team_name as host_name, b.team_id as guest_id, b.team_name as guest_name, a.host_goals, a.guest_goals,\ncase\nwhen a.host_goals > a.guest_goals then 3\nwhen a.host_goals = a.guest_goals then 1\nelse 0\nend as host_points,\ncase\nwhen a.host_goals < a.guest_goals then 3\nwhen a.host_goals = a.guest_goals then 1\nelse 0\nend as guest_points\nfrom(\nselect *\nfrom matches m\njoin teams t\non t.team_id = m.host_team) a\njoin\n(select *\nfrom matches m\njoin teams t\non t.team_id = m.guest_team) b\non a.match_id = b.match_id) d)\n\nSelect team_id, team_name, coalesce(total,0) as num_points\nfrom teams t2\nleft join(\nselect host_id, host_name, sum(host_points) as total\nfrom t1\ngroup by host_id, host_name) e\non t2.team_id = e.host_id\norder by num_points desc, team_id",
+    "metadata": {
+      "id": "SQL_109",
+      "title": "Team Scores In Football Match",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/team-scores-in-football-match/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Team%20scores%20in%20football%20match.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Users\nTable: Orders\nitem_id is a foreign key to the Items table.\nbuyer_id and seller_id are foreign keys to the Users table.\nTable: Items\nWrite an SQL query to find for each user, the join date and the number of orders they made as a buyer in 2019.\nThe query result format is in the following example:\nUsers table:\nOrders table:\nItems table:\nResult table:\nSolution\nselect user_id as buyer_id, join_date, coalesce(a.orders_in_2019,0)\nfrom users\nleft join\n(\nselect buyer_id, coalesce(count(*), 0) as orders_in_2019\nfrom orders o\njoin users u\non u.user_id = o.buyer_id\nwhere extract('year'from order_date) = 2019\ngroup by buyer_id) a\non users.user_id = a.buyer_id",
+    "solution_raw": "select user_id as buyer_id, join_date, coalesce(a.orders_in_2019,0)\nfrom users\nleft join\n(\nselect buyer_id, coalesce(count(*), 0) as orders_in_2019\nfrom orders o\njoin users u\non u.user_id = o.buyer_id\nwhere extract('year'from order_date) = 2019\ngroup by buyer_id) a\non users.user_id = a.buyer_id",
+    "metadata": {
+      "id": "SQL_110",
+      "title": "Market Analysis 1",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/market-analysis-1/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Market%20Analysis%201.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Enrollments\nWrite a SQL query to find the highest grade with its corresponding course for each student. In case of a tie, you should find the course with the smallest course_id. The output must be sorted by increasing student_id.\nThe query result format is in the following example:\nEnrollments table:\nResult table:\nSolution\nselect student_id, course_id, grade\nfrom(\nselect student_id, course_id, grade,\nrank() over(partition by student_id order by grade desc, course_id) as rk\nfrom enrollments) a\nwhere a.rk = 1",
+    "solution_raw": "select student_id, course_id, grade\nfrom(\nselect student_id, course_id, grade,\nrank() over(partition by student_id order by grade desc, course_id) as rk\nfrom enrollments) a\nwhere a.rk = 1",
+    "metadata": {
+      "id": "SQL_111",
+      "title": "Highest Grade For Each Student",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/highest-grade-for-each-student/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Highest%20grade%20for%20each%20student.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Books\nTable: Orders\nbook_id is a foreign key to the Books table.\nWrite an SQL query that reports the books that have sold less than 10 copies in the last year, excluding books that have been available for less than 1 month from today. Assume today is 2019-06-23.\nThe query result format is in the following example:\nBooks table:\nOrders table:\nResult table:\nSolution\nselect b.book_id, name\nfrom\n(select *\nfrom books\nwhere available_from < '2019-05-23') b\nleft join\n(select *\nfrom orders\nwhere dispatch_date > '2018-06-23') a\non a.book_id = b.book_id\ngroup by b.book_id, name\nhaving coalesce(sum(quantity),0)<10",
+    "solution_raw": "select b.book_id, name\nfrom\n(select *\nfrom books\nwhere available_from < '2019-05-23') b\nleft join\n(select *\nfrom orders \nwhere dispatch_date > '2018-06-23') a\non a.book_id = b.book_id\ngroup by b.book_id, name\nhaving coalesce(sum(quantity),0)<10",
+    "metadata": {
+      "id": "SQL_112",
+      "title": "Unpopular Books",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/unpopular-books/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Unpopular%20Books.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Products\nWrite an SQL query to find the prices of all products on 2019-08-16. Assume the price of all products before any change is 10.\nThe query result format is in the following example:\nProducts table:\nResult table:\nSolution\nwith t1 as (\nselect a.product_id, new_price\nfrom(\nSelect product_id, max(change_date) as date\nfrom products\nwhere change_date<='2019-08-16'\ngroup by product_id) a\njoin products p\non a.product_id = p.product_id and a.date = p.change_date),\nt2 as (\nselect distinct product_id\nfrom products)\nselect t2.product_id, coalesce(new_price,10) as price\nfrom t2 left join t1\non t2.product_id = t1.product_id\norder by price desc",
+    "solution_raw": "with t1 as (\nselect a.product_id, new_price\nfrom(\nSelect product_id, max(change_date) as date\nfrom products\nwhere change_date<='2019-08-16'\ngroup by product_id) a\njoin products p\non a.product_id = p.product_id and a.date = p.change_date),\n\nt2 as (\nselect distinct product_id\n\tfrom products)\n\t\nselect t2.product_id, coalesce(new_price,10) as price\nfrom t2 left join t1\non t2.product_id = t1.product_id\norder by price desc",
+    "metadata": {
+      "id": "SQL_113",
+      "title": "Product Price At A Given Date",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/product-price-at-a-given-date/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Product%20Price%20at%20a%20given%20date.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Events\nWrite an SQL query to find all active businesses.\nThe query result format is in the following example:\nEvents table:\nResult table:\nAverage for 'reviews', 'ads' and 'page views' are (7+3)/2=5, (11+7+6)/3=8, (3+12)/2=7.5 respectively.\nBusiness with id 1 has 7 'reviews' events (more than 5) and 11 'ads' events (more than 8) so it is an active business.\nSolution\nselect c.business_id\nfrom(\nselect *\nfrom events e\njoin\nwhere c.occurences>c.average\ngroup by c.business_id\nhaving count(*) > 1",
+    "solution_raw": "select c.business_id\nfrom(\nselect *\nfrom events e\njoin\n(select event_type as event, round(avg(occurences),2) as average from events group by event_type) b\non e.event_type = b.event) c\nwhere c.occurences>c.average\ngroup by c.business_id\nhaving count(*) > 1",
+    "metadata": {
+      "id": "SQL_114",
+      "title": "Active Businesses",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/active-businesses/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Active%20Businesses.sql"
+    }
+  },
+  {
+    "vector_content": "Given the Employee table, write a SQL query that finds out managers with at least 5 direct report. For the above table, your SQL query should return:\nNote:\nNo one would report to himself.\nSolution\nwith t1 as\n(\nselect managerid, count(name) as total\nfrom employee\ngroup by managerid\n)\nselect e.name\nfrom t1\njoin employee e\non t1.managerid = e.id\nwhere t1.total>=5",
+    "solution_raw": "with t1 as\n(\n    select managerid, count(name) as total\n    from employee\n    group by managerid\n)\n\nselect e.name\nfrom t1\njoin employee e\non t1.managerid = e.id\nwhere t1.total>=5",
+    "metadata": {
+      "id": "SQL_115",
+      "title": "Managers With Atleast 5 Direct Reports",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/managers-with-atleast-5-direct-reports/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Managers%20with%20atleast%205%20direct%20reports.sql"
+    }
+  },
+  {
+    "vector_content": "Table: Logs\nThe query result format is in the following example:\nLogs table:\nResult table:\nFrom 1 to 3 is contained in the table.\nFrom 4 to 6 is missing in the table\nFrom 7 to 8 is contained in the table.\nNumber 9 is missing in the table.\nNumber 10 is contained in the table.\nSolution\nselect min(log_id) as start_id, max(log_id) as end_id\nfrom(\nselect log_id, log_id-row_number() over (order by log_id) as rk\nfrom logs) a\ngroup by rk",
+    "solution_raw": "select min(log_id) as start_id, max(log_id) as end_id\nfrom(\nselect log_id, log_id-row_number() over (order by log_id) as rk\nfrom logs) a\ngroup by rk",
+    "metadata": {
+      "id": "SQL_116",
+      "title": "Find The Start And End Number Of Continuous Ranges",
+      "category": "SQL",
+      "taxonomy_skills": [
+        "sql_medium"
+      ],
+      "solution_summary": "",
+      "url": "https://leetcode.com/problems/find-the-start-and-end-number-of-continuous-ranges/",
+      "backup_url": "https://github.com/mrinal1704/SQL-Leetcode-Challenge/blob/master/Medium/Find%20the%20start%20and%20end%20number%20of%20continuous%20ranges.sql"
+    }
+  }
+]

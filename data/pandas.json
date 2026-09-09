@@ -1,0 +1,227 @@
+[
+ {
+  "vector_content": "Title: Create a DataFrame from List\nDifficulty: Easy\nDescription: Create a DataFrame from a given 2D list called `student_data` that includes student IDs and their respective ages. The DataFrame should have two columns: `student_id` and `age`, retaining the order of the original list.",
+  "metadata": {
+   "id": "pandas_1",
+   "title": "Create a DataFrame from List",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_manipulation",
+    "pandas_data_selection"
+   ],
+   "solution_summary": "The solution involves converting a 2D list into a pandas DataFrame, enabling more structured data analysis. A DataFrame is akin to a table, where each row is a record and each column is an attribute. By using the pandas library, we can import our data and use `pd.DataFrame` to transform a list into a structured format. Default headers are labeled numerically, but custom column names can be specified to better reflect the data attributes. This transformation makes it easier to work with data for analysis purposes.",
+   "url": "https://leetcode.com/problems/create-a-dataframe-from-list"
+  }
+ },
+ {
+  "vector_content": "Title: Get the Size of a DataFrame\nDifficulty: Easy\nDescription: The task is to determine the number of rows and columns in a given DataFrame named `players`. The output should be an array where the first element is the count of rows and the second element is the count of columns.",
+  "metadata": {
+   "id": "pandas_2",
+   "title": "Get the Size of a DataFrame",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_inspection",
+    "pandas_data_selection"
+   ],
+   "solution_summary": "The task is to find the number of rows and columns in a DataFrame. We use a function that takes this DataFrame as input. Within this function, the `shape` attribute of the DataFrame is used to determine its dimensions. The `shape` attribute provides a tuple with the number of rows and columns. The function then returns these values in a list format.",
+   "url": "https://leetcode.com/problems/get-the-size-of-a-dataframe"
+  }
+ },
+ {
+  "vector_content": "Title: Display the First Three Rows\nDifficulty: Easy\nDescription: The task is to write a solution using Python/Pandas to return the first three rows of a given DataFrame named 'employees'. This DataFrame includes columns for employee IDs, names, departments, and salaries. The output should display only these initial three rows with all columns retained.",
+  "metadata": {
+   "id": "pandas_3",
+   "title": "Display the First Three Rows",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_inspection",
+    "pandas_data_selection"
+   ],
+   "solution_summary": "The task is to return the first three rows of an \"employees\" DataFrame. A DataFrame is a 2D structure that holds data in rows and columns, similar to a spreadsheet. The pandas library provides a method called 'head' that helps in retrieving the top 'n' rows when applied to a DataFrame. By using this method with the number 3, we get a quick view of the first three entries in our dataset. This can be useful for examining the beginning contents of a larger dataset.",
+   "url": "https://leetcode.com/problems/display-the-first-three-rows"
+  }
+ },
+ {
+  "vector_content": "Title: Select Data\nDifficulty: Easy\nDescription: The task is to write a function that processes a DataFrame containing student IDs, names, and ages. The objective is to select and return only the name and age of the student with a specific student ID, specifically `student_id = 101`.",
+  "metadata": {
+   "id": "pandas_4",
+   "title": "Select Data",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_inspection",
+    "pandas_data_selection"
+   ],
+   "solution_summary": "The problem involves selecting data from a pandas DataFrame, specifically returning the name and age of the student with a specific ID. A DataFrame is a two-dimensional table-like data structure where each row represents a record and each column represents a different attribute. The solution uses the `loc` attribute, which selects data based on labels, to filter the DataFrame. By providing a condition that checks for the specific student ID, the `loc` function returns the required information. In this case, it retrieves the name and age of the student whose ID matches the given criterion.",
+   "url": "https://leetcode.com/problems/select-data"
+  }
+ },
+ {
+  "vector_content": "Title: Create a New Column\nDifficulty: Easy\nDescription: The task is to add a new column named \"bonus\" to the existing DataFrame called \"employees,\" which has columns \"name\" (object type) and \"salary\" (integer type). The \"bonus\" column should contain values that are double the \"salary\" column values.",
+  "metadata": {
+   "id": "pandas_5",
+   "title": "Create a New Column",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_manipulation"
+   ],
+   "solution_summary": "The task is to add a new column called 'bonus' to the 'employees' DataFrame, where each value is twice the amount of the employee's salary. This involves using a column-wise operation to multiply each salary by two and then assigning these values to the new 'bonus' column. The operation efficiently utilizes pandas' capability to handle vectorized operations, enabling quick and effective calculations across the column. As a result, the 'bonus' column is created with doubled salary figures for each employee. If the column doesn't exist, it will be automatically created in the DataFrame.",
+   "url": "https://leetcode.com/problems/create-a-new-column"
+  }
+ },
+ {
+  "vector_content": "Title: Drop Duplicate Rows\nDifficulty: Easy\nDescription: The task is to process a DataFrame containing customer data with columns for customer ID, name, and email. The objective is to remove duplicate rows based on the email column, retaining only the first occurrence of each email address. The solution should return a DataFrame with these duplicates removed, maintaining the original column order and types.",
+  "metadata": {
+   "id": "pandas_6",
+   "title": "Drop Duplicate Rows",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_cleaning"
+   ],
+   "solution_summary": "The solution involves managing a DataFrame named `customers` to remove duplicate entries based on the `email` column, keeping only the first occurrence of any duplicate email address. The main tool used for this is the `drop_duplicates` function from the pandas library, applied specifically to the `email` column. The function removes the duplicates directly from the original DataFrame without creating a new one. This ensures that every email in the DataFrame is unique, aiding in data integrity. The revised DataFrame is returned with duplicates eliminated as per the specified criterion.",
+   "url": "https://leetcode.com/problems/drop-duplicate-rows"
+  }
+ },
+ {
+  "vector_content": "Title: Drop Missing Data\nDifficulty: Easy\nDescription: The task is to process a DataFrame containing columns for student IDs, names, and ages. The objective is to remove any rows where the 'name' column has missing values.",
+  "metadata": {
+   "id": "pandas_7",
+   "title": "Drop Missing Data",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_cleaning"
+   ],
+   "solution_summary": "The task involves handling missing data in a DataFrame containing student information. Some rows in the 'name' column have missing values, and the goal is to remove these rows. This can be achieved using the `dropna` function in pandas. By focusing on the 'name' column and setting the function to modify the original DataFrame, rows with missing names are effectively removed. The result is a DataFrame with only the rows where the 'name' column is complete.",
+   "url": "https://leetcode.com/problems/drop-missing-data"
+  }
+ },
+ {
+  "vector_content": "Title: Modify Columns\nDifficulty: Easy\nDescription: Given a DataFrame named `employees` with columns `name` and `salary`, the task is to double the value in the `salary` column for each employee. Return the modified DataFrame with the updated salaries.",
+  "metadata": {
+   "id": "pandas_8",
+   "title": "Modify Columns",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_manipulation"
+   ],
+   "solution_summary": "The task is to double the salary of each employee in the `employees` DataFrame. This is achieved by performing a column-wise operation, specifically multiplying each value in the `salary` column by two. The updated values replace the original salaries in the DataFrame, ensuring that each entry in the `salary` column is now twice its initial amount. This operation demonstrates how pandas efficiently handles arithmetic operations across an entire column.",
+   "url": "https://leetcode.com/problems/modify-columns"
+  }
+ },
+ {
+  "vector_content": "Title: Rename Columns\nDifficulty: Easy\nDescription: Given a DataFrame named 'students' with columns labeled as 'id', 'first', 'last', and 'age', the task is to rename these columns. The column 'id' should be changed to 'student_id', 'first' to 'first_name', 'last' to 'last_name', and 'age' to 'age_in_years'.",
+  "metadata": {
+   "id": "pandas_9",
+   "title": "Rename Columns",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_manipulation"
+   ],
+   "solution_summary": "The task is to rename columns in a DataFrame called `students` to make them more descriptive. We utilize the `rename` method from pandas, which allows us to specify new column names through a dictionary. The function `renameColumns` is defined to apply these changes, creating and returning a new DataFrame with updated column names. The original DataFrame remains unchanged unless the `inplace` option is specified. This approach clearly labels the data for better clarity and understanding.",
+   "url": "https://leetcode.com/problems/rename-columns"
+  }
+ },
+ {
+  "vector_content": "Title: Change Data Type\nDifficulty: Easy\nDescription: The task is to modify a DataFrame named \"students\" which contains columns for student ID, name, age, and grade. The grade column is currently stored as floats and should be converted to integers. The solution requires changing the data type of the grade column from float to int in the DataFrame.",
+  "metadata": {
+   "id": "pandas_10",
+   "title": "Change Data Type",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_cleaning"
+   ],
+   "solution_summary": "The solution involves changing the grades in a DataFrame from floats to integers. This is done using a function that utilizes the `astype` method to convert the data type of the `grade` column. The function returns a new DataFrame with the grades as integers. By applying this conversion, the grades are no longer in decimal form and reflect whole numbers instead. The final result is a DataFrame with the updated data type for the grades column.",
+   "url": "https://leetcode.com/problems/change-data-type"
+  }
+ },
+ {
+  "vector_content": "Title: Fill Missing Data\nDifficulty: Easy\nDescription: The task is to develop a solution to fill missing values with zero in the 'quantity' column of a DataFrame named 'products', which contains product details, including names, quantities, and prices.",
+  "metadata": {
+   "id": "pandas_11",
+   "title": "Fill Missing Data",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_cleaning"
+   ],
+   "solution_summary": "The task is to address missing quantity data in a DataFrame called `products` by replacing missing values with zero. This is done by applying the `fillna` function specifically to the `quantity` column in the DataFrame. The `fillna` function is used to substitute gaps in the data with a specified value, in this case, zero. Setting the `inplace` parameter ensures that the original DataFrame is modified directly without creating a new object. The goal is to ensure all missing quantity values are updated to zero in the existing DataFrame structure.",
+   "url": "https://leetcode.com/problems/fill-missing-data"
+  }
+ },
+ {
+  "vector_content": "Title: Reshape Data: Concatenate\nDifficulty: Easy\nDescription: The task is to concatenate two DataFrames vertically. Each DataFrame has columns for student IDs, names, and ages. The goal is to combine the rows of both DataFrames into a single DataFrame, maintaining the order of rows as they appear in the original DataFrames.",
+  "metadata": {
+   "id": "pandas_12",
+   "title": "Reshape Data: Concatenate",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_reshaping"
+   ],
+   "solution_summary": "The task is to merge two DataFrames, `df1` and `df2`, in a vertical manner. Both DataFrames have identical structures with the columns `student_id`, `name`, and `age`. The solution involves using a pandas function to stack the two DataFrames one on top of the other. By specifying the appropriate settings, the function efficiently combines the data, preserving the column order. This process results in a single, cohesive DataFrame with all the data from `df1` and `df2`.",
+   "url": "https://leetcode.com/problems/reshape-data-concatenate"
+  }
+ },
+ {
+  "vector_content": "Title: Reshape Data: Pivot\nDifficulty: Easy\nDescription: The problem requires you to transform a DataFrame named `weather`, which contains columns for city names, months, and corresponding temperatures. The task is to pivot this data so that each unique city becomes a column while each unique month remains a row. The result should display temperatures corresponding to each city-month pairing in the correct cell.",
+  "metadata": {
+   "id": "pandas_13",
+   "title": "Reshape Data: Pivot",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_reshaping"
+   ],
+   "solution_summary": "This solution demonstrates how to transform a DataFrame using the pivot function in pandas. Pivoting reshapes data from a long format to a wide format by specifying which column values become new indices, new columns, and values to fill in. The example provided involves organizing temperature data by month and city, converting rows into columns to better visualize the information. The importance of handling duplicated entries and sorting the output in a specific order is highlighted, showcasing complete control over the final shape of the DataFrame. Overall, this technique enhances data readability and organization efficiently.",
+   "url": "https://leetcode.com/problems/reshape-data-pivot"
+  }
+ },
+ {
+  "vector_content": "Title: Reshape Data: Melt\nDifficulty: Easy\nDescription: Transform a DataFrame that contains sales data with columns for product names and quarterly sales into a format where each row specifies a product and its corresponding sales for a specific quarter. The task requires converting the input from a wide to long format, effectively melting quarter columns into rows to associate each product with its sales in each quarter.",
+  "metadata": {
+   "id": "pandas_14",
+   "title": "Reshape Data: Melt",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_reshaping"
+   ],
+   "solution_summary": "The task involves converting sales data from a wide format to a long format. Initially, the DataFrame contains multiple columns for each product, representing sales across different quarters. The goal is to reshape this data so each row corresponds to a product's sales in a specific quarter, with only two columns: one for the quarter and another for sales figures. This is accomplished by keeping the 'product' column unchanged while transforming the quarterly sales columns into rows, organizing the information efficiently. The result is a consolidated long-format DataFrame that succinctly represents each product's quarterly sales data.",
+   "url": "https://leetcode.com/problems/reshape-data-melt"
+  }
+ },
+ {
+  "vector_content": "Title: Method Chaining\nDifficulty: Easy\nDescription: The task is to manipulate a DataFrame containing information about animals, specifically focusing on their names, species, age, and weight. The goal is to generate a list of animal names where each animal weighs strictly more than 100 kilograms. This list should be sorted in descending order based on their weight. The solution should utilize method chaining in Pandas to achieve this in a single line of code.",
+  "metadata": {
+   "id": "pandas_15",
+   "title": "Method Chaining",
+   "category": "Pandas",
+   "taxonomy_skills": [
+    "pandas_easy",
+    "pandas_data_selection",
+    "pandas_data_manipulation"
+   ],
+   "solution_summary": "The solution involves identifying and listing the names of animals weighing more than 100 kilograms. This is achieved by first filtering the animals using a condition to check their weight. After filtering, the animals are sorted by their weight in descending order. Finally, only the names of these animals are selected and presented. The process is encapsulated in a function, allowing the operations to be reused efficiently. This solution highlights how multiple operations can be chained together effectively using data manipulation techniques.",
+   "url": "https://leetcode.com/problems/method-chaining"
+  }
+ }
+]

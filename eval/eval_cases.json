@@ -1,0 +1,1111 @@
+{
+  "metadata": {
+    "name": "ds_interviewer_eval_cases",
+    "version": "2026-08-16",
+    "description": "Unified eval cases for both retrieval-only evaluation and Agent1 plus Agent2 retrieval evaluation. Each jd field is a short paraphrase grounded in an official company job posting or official company career guidance page, not a synthetic role invented from scratch.",
+    "label_policy": "expected_categories and expected_skills must match labels already present in data/questions_normalized.jsonl. The evaluation script validates this before running retrieval.",
+    "modes": {
+      "retrieval_only": "Use the human-written query field directly, then evaluate retrieved questions against expected_categories and expected_skills.",
+      "agent1_retrieval": "Run Agent1 on jd and user_desc, use Agent1 output skills as retrieval queries, then evaluate retrieved questions against the same expected labels."
+    },
+    "relevance_rule": "A retrieved question is relevant if its category matches expected_categories or any taxonomy skill matches expected_skills.",
+    "sources_used": [
+      {
+        "company": "Apple",
+        "url": "https://jobs.apple.com/en-us/details/200663930/machine-learning-ml-data-scientist-ise-analytics-and-user-studies-input-experience",
+        "topic": "ML data scientist, metrics, user studies, model evaluation"
+      },
+      {
+        "company": "Apple",
+        "url": "https://jobs.apple.com/en-us/details/200663649/data-scientist",
+        "topic": "Algorithm evaluation, precision/recall, robustness, experimentation, causal inference"
+      },
+      {
+        "company": "Apple",
+        "url": "https://jobs.apple.com/en-us/details/200660358-3956/machine-learning-data-scientist",
+        "topic": "Computer vision and foundation model evaluation"
+      },
+      {
+        "company": "Apple",
+        "url": "https://jobs.apple.com/en-us/details/200672184",
+        "topic": "Search, retrieval, ranking, personalization, NLU"
+      },
+      {
+        "company": "Amazon",
+        "url": "https://www.amazon.jobs/en/jobs/10442969/applied-scientist-personalization-ranking",
+        "topic": "Applied scientist, personalization and ranking"
+      },
+      {
+        "company": "Amazon",
+        "url": "https://www.amazon.jobs/fr/jobs/10380243/applied-scientist-iii-amz9674037",
+        "topic": "Applied scientist, statistical modeling, optimization, ML/NLP"
+      },
+      {
+        "company": "Microsoft",
+        "url": "https://careers.microsoft.com/v2/global/en/hiring-tips/technical-interviewing.html",
+        "topic": "Technical interview areas including data structures, algorithms, statistics, regression, time series, ML evaluation"
+      },
+      {
+        "company": "Google",
+        "url": "https://www.google.com/about/careers/applications/jobs/results/94480883905372870-senior-data-scientist-core-ranking-and-ai-context",
+        "topic": "Core ranking, AI context, search quality measurement, experimentation"
+      },
+      {
+        "company": "Netflix",
+        "url": "https://netflix.wd108.myworkdayjobs.com/Netflix/job/USA---Remote/Data-Scientist-5---Personalization-Algorithms-Performance_JR40516",
+        "topic": "Personalization algorithms, ML, causal inference"
+      },
+      {
+        "company": "Uber",
+        "url": "https://www.uber.com/global/ml/careers/list/155218/",
+        "topic": "Marketplace science, experimentation, causal inference, optimization"
+      },
+      {
+        "company": "Airbnb",
+        "url": "https://careers.airbnb.com/positions/6196803/",
+        "topic": "Marketplace data science, pricing, experimentation, causal ML"
+      },
+      {
+        "company": "Airbnb",
+        "url": "https://careers.airbnb.com/positions/7926614/",
+        "topic": "Travel insurance algorithms, ranking, recommendations, intent modeling"
+      },
+      {
+        "company": "Meta",
+        "url": "https://www.metacareers.com/teams/technology?tab=AI",
+        "topic": "AI, personalization, large-scale ML systems"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "eval_001_apple_ml_ds_input_experience",
+      "company": "Apple",
+      "role_title": "Machine Learning Data Scientist, Input Experience",
+      "role_family": "ml_data_science",
+      "source_url": "https://jobs.apple.com/en-us/details/200663930/machine-learning-ml-data-scientist-ise-analytics-and-user-studies-input-experience",
+      "query": "ML data scientist model evaluation user metrics SQL experimentation",
+      "jd": "The role focuses on measuring user experience quality for ML-powered input systems. The candidate will analyze product metrics, design user studies, evaluate model performance, write SQL and Python, and communicate data-driven recommendations to engineering and design partners.",
+      "user_desc": "I have two years of product analytics experience, strong SQL, basic Python, and some A/B testing experience. I am weaker on machine learning theory and model evaluation metrics.",
+      "days_left": 5,
+      "expected_categories": [
+        "SQL",
+        "ML",
+        "Statistics"
+      ],
+      "expected_skills": [
+        "sql_aggregation",
+        "sql_window_function",
+        "validation",
+        "classification"
+      ],
+      "expected_concepts": [
+        "model evaluation",
+        "metrics design",
+        "experimentation",
+        "user studies"
+      ],
+      "target_type_mix": {
+        "coding": 0.45,
+        "theory": 0.55
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_002_apple_algorithm_evaluation_ds",
+      "company": "Apple",
+      "role_title": "Data Scientist, Algorithm Evaluation",
+      "role_family": "algorithm_evaluation",
+      "source_url": "https://jobs.apple.com/en-us/details/200663649/data-scientist",
+      "query": "algorithm evaluation precision recall robustness validation causal inference SQL",
+      "jd": "This data scientist role evaluates algorithm quality using precision, recall, latency, robustness analysis, statistical testing, model validation, failure analysis, and experimentation frameworks. The work requires Python, SQL, and strong communication with product and engineering teams.",
+      "user_desc": "I am comfortable with Python data analysis and SQL joins, but I have not practiced precision-recall tradeoffs, validation, or causal inference recently.",
+      "days_left": 6,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "validation",
+        "classification",
+        "sql_join",
+        "algo_array_string"
+      ],
+      "expected_concepts": [
+        "precision recall",
+        "causal inference",
+        "A/B testing",
+        "failure analysis"
+      ],
+      "target_type_mix": {
+        "coding": 0.4,
+        "theory": 0.6
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_003_apple_cv_foundation_model_eval",
+      "company": "Apple",
+      "role_title": "Machine Learning Data Scientist, Computer Vision Evaluation",
+      "role_family": "ml_evaluation",
+      "source_url": "https://jobs.apple.com/en-us/details/200660358-3956/machine-learning-data-scientist",
+      "query": "computer vision foundation model evaluation neural networks confidence intervals sampling",
+      "jd": "The team evaluates supervised, unsupervised, deep learning, multimodal, and computer vision models. The role needs sampling, confidence intervals, statistical testing, Python ML libraries, and metrics for comparing model outputs.",
+      "user_desc": "I know classical ML and pandas, but I am less confident about neural networks, computer vision metrics, and statistical confidence intervals.",
+      "days_left": 7,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "Pandas"
+      ],
+      "expected_skills": [
+        "neural_networks",
+        "validation",
+        "supervised_machine_learning",
+        "pandas_data_manipulation"
+      ],
+      "expected_concepts": [
+        "computer vision evaluation",
+        "confidence intervals",
+        "sampling",
+        "multimodal evaluation"
+      ],
+      "target_type_mix": {
+        "coding": 0.35,
+        "theory": 0.65
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_004_apple_search_ml_engineer",
+      "company": "Apple",
+      "role_title": "Machine Learning Engineer, Search",
+      "role_family": "search_ranking",
+      "source_url": "https://jobs.apple.com/en-us/details/200672184",
+      "query": "search retrieval ranking personalization semantic search heap graph SQL",
+      "jd": "The role builds search, retrieval, ranking, personalization, and natural language understanding systems. It requires large-scale ML, semantic matching, user context modeling, and production-oriented algorithmic thinking.",
+      "user_desc": "I have implemented classification models and basic APIs. I need to prepare for ranking, retrieval, graphs, heaps, and system-style ML reasoning.",
+      "days_left": 8,
+      "expected_categories": [
+        "ML",
+        "Algorithms",
+        "SQL"
+      ],
+      "expected_skills": [
+        "ranking_and_search",
+        "text_classification",
+        "algo_heap",
+        "algo_graph",
+        "sql_join"
+      ],
+      "expected_concepts": [
+        "retrieval ranking",
+        "semantic search",
+        "personalization",
+        "large scale ML"
+      ],
+      "target_type_mix": {
+        "coding": 0.55,
+        "theory": 0.45
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_005_apple_genai_supply_chain_mle",
+      "company": "Apple",
+      "role_title": "Machine Learning Engineer, Supply Chain GenAI",
+      "role_family": "genai_mle",
+      "source_url": "https://jobs.apple.com/en-us/details/200641514-0836/machine-learning-engineer",
+      "query": "RAG retrieval model evaluation text to SQL structured reasoning agent workflow",
+      "jd": "This role builds GenAI workflows for supply chain operations, including prompt and tool design, retrieval strategies, model selection, evaluation, text-to-SQL, structured reasoning, and production ML collaboration.",
+      "user_desc": "I have machine learning coursework and Python skills, but I am weak in SQL edge cases and retrieval evaluation. I want practice that mixes ML theory with practical coding.",
+      "days_left": 6,
+      "expected_categories": [
+        "ML",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "ranking_and_search",
+        "validation",
+        "sql_cte",
+        "sql_window_function",
+        "algo_hash_map"
+      ],
+      "expected_concepts": [
+        "RAG",
+        "text to SQL",
+        "model evaluation",
+        "tool use"
+      ],
+      "target_type_mix": {
+        "coding": 0.45,
+        "theory": 0.55
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_006_amazon_personalization_ranking",
+      "company": "Amazon",
+      "role_title": "Applied Scientist, Personalization and Ranking",
+      "role_family": "applied_scientist",
+      "source_url": "https://www.amazon.jobs/en/jobs/10442969/applied-scientist-personalization-ranking",
+      "query": "recommendation system personalization ranking customer behavior offline evaluation SQL dynamic programming",
+      "jd": "The applied scientist will improve recommendation and ranking systems using large customer behavior datasets, LLM-related approaches, experiments, offline evaluation, and production launches.",
+      "user_desc": "I am applying to applied scientist roles. I understand recommender basics but need stronger ranking metrics, validation, dynamic programming, and SQL aggregation practice.",
+      "days_left": 10,
+      "expected_categories": [
+        "ML",
+        "Algorithms",
+        "SQL"
+      ],
+      "expected_skills": [
+        "recommender_systems",
+        "ranking_and_search",
+        "validation",
+        "algo_dp",
+        "sql_aggregation"
+      ],
+      "expected_concepts": [
+        "offline evaluation",
+        "ranking metrics",
+        "recommendations",
+        "experimentation"
+      ],
+      "target_type_mix": {
+        "coding": 0.5,
+        "theory": 0.5
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_007_amazon_statistical_ml_nlp",
+      "company": "Amazon",
+      "role_title": "Applied Scientist III, Statistical ML and NLP",
+      "role_family": "applied_scientist",
+      "source_url": "https://www.amazon.jobs/fr/jobs/10380243/applied-scientist-iii-amz9674037",
+      "query": "NLP applied scientist neural networks optimization validation graph SQL",
+      "jd": "This role applies statistical modeling, Bayesian and neural methods, optimization, and machine learning or natural language applications. It also involves designing production experiments and evaluating model impact.",
+      "user_desc": "My background is NLP research with limited industry SQL. I need to refresh optimization, neural networks, validation, and coding patterns for interviews.",
+      "days_left": 9,
+      "expected_categories": [
+        "ML",
+        "Algorithms",
+        "SQL"
+      ],
+      "expected_skills": [
+        "neural_networks",
+        "optimization_in_neural_networks",
+        "text_classification",
+        "validation",
+        "algo_graph",
+        "sql_join"
+      ],
+      "expected_concepts": [
+        "Bayesian modeling",
+        "NLP",
+        "production experiments",
+        "optimization"
+      ],
+      "target_type_mix": {
+        "coding": 0.45,
+        "theory": 0.55
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_008_microsoft_technical_ds_interview",
+      "company": "Microsoft",
+      "role_title": "Data Scientist, Technical Interview Preparation",
+      "role_family": "general_ds_interview",
+      "source_url": "https://careers.microsoft.com/v2/global/en/hiring-tips/technical-interviewing.html",
+      "query": "data scientist interview regression time series hypothesis testing SQL graph hash map",
+      "jd": "Microsoft technical interviews may cover data manipulation, probabilistic thinking, statistics, regression, time series, hypothesis testing, machine learning evaluation, and data structures such as arrays, strings, trees, hash maps, and graphs.",
+      "user_desc": "I have an upcoming general data scientist interview. I am solid on SQL basics but weak on probability, regression assumptions, and graph coding.",
+      "days_left": 7,
+      "expected_categories": [
+        "Statistics",
+        "ML",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "linear_regression",
+        "time_series",
+        "validation",
+        "sql_group_by",
+        "algo_graph",
+        "algo_hash_map"
+      ],
+      "expected_concepts": [
+        "probability",
+        "hypothesis testing",
+        "regression assumptions",
+        "data structures"
+      ],
+      "target_type_mix": {
+        "coding": 0.5,
+        "theory": 0.5
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_009_microsoft_ai_search_relevance",
+      "company": "Microsoft",
+      "role_title": "Data Scientist, AI Search Relevance",
+      "role_family": "search_ranking",
+      "source_url": "https://careers.microsoft.com/v2/global/en/locations/bay-area.html",
+      "query": "AI search relevance neural ranking user feedback A/B testing SQL window heap sorting",
+      "jd": "The role supports AI search relevance through large-scale machine learning, neural ranking, reinforcement learning from user feedback, training data quality, and online A/B testing.",
+      "user_desc": "I have search relevance internship experience but have not practiced SQL windows or algorithm coding in months. I also need review on ranking metrics and validation.",
+      "days_left": 8,
+      "expected_categories": [
+        "ML",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "ranking_and_search",
+        "validation",
+        "sql_window_function",
+        "algo_heap",
+        "algo_sorting"
+      ],
+      "expected_concepts": [
+        "neural ranking",
+        "A/B testing",
+        "feedback signals",
+        "training data quality"
+      ],
+      "target_type_mix": {
+        "coding": 0.5,
+        "theory": 0.5
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_010_google_core_ranking_ai_context",
+      "company": "Google",
+      "role_title": "Senior Data Scientist, Core Ranking and AI Context",
+      "role_family": "search_ranking",
+      "source_url": "https://www.google.com/about/careers/applications/jobs/results/94480883905372870-senior-data-scientist-core-ranking-and-ai-context",
+      "query": "search quality ranking metrics experiment design survey evaluation supervised machine learning SQL",
+      "jd": "The data science team works on search and AI quality measurement, metric headroom analysis, experimental design, survey design, statistical modeling, machine learning algorithms, eval automation, and stakeholder recommendations.",
+      "user_desc": "I am a product data scientist moving toward search quality roles. I know experimentation but need ranking, survey/eval methodology, and Python algorithm warmup.",
+      "days_left": 10,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "Algorithms",
+        "SQL"
+      ],
+      "expected_skills": [
+        "ranking_and_search",
+        "validation",
+        "supervised_machine_learning",
+        "sql_aggregation",
+        "algo_two_pointers"
+      ],
+      "expected_concepts": [
+        "search quality",
+        "evaluation methodology",
+        "experimental design",
+        "survey design"
+      ],
+      "target_type_mix": {
+        "coding": 0.45,
+        "theory": 0.55
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_011_netflix_data_insights_personalization",
+      "company": "Netflix",
+      "role_title": "Data Scientist, Data and Insights",
+      "role_family": "product_ds",
+      "source_url": "https://jobs.netflix.com/careers/data-and-insights",
+      "query": "product data science personalization content analytics recommender time series SQL pandas",
+      "jd": "The data science team improves member experiences through personalization algorithms, content valuation, streaming optimization, large-scale analytics, and cross-functional decision support.",
+      "user_desc": "I have content analytics experience and good communication. I need more recommender systems, time series, SQL windows, and pandas practice.",
+      "days_left": 7,
+      "expected_categories": [
+        "ML",
+        "SQL",
+        "Pandas",
+        "Statistics"
+      ],
+      "expected_skills": [
+        "recommender_systems",
+        "time_series",
+        "sql_window_function",
+        "pandas_data_manipulation"
+      ],
+      "expected_concepts": [
+        "personalization",
+        "content valuation",
+        "streaming optimization",
+        "member analytics"
+      ],
+      "target_type_mix": {
+        "coding": 0.45,
+        "theory": 0.55
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_012_netflix_personalization_algorithms_performance",
+      "company": "Netflix",
+      "role_title": "Data Scientist, Personalization Algorithms Performance",
+      "role_family": "algorithm_evaluation",
+      "source_url": "https://netflix.wd108.myworkdayjobs.com/Netflix/job/USA---Remote/Data-Scientist-5---Personalization-Algorithms-Performance_JR40516",
+      "query": "personalization algorithm performance causal inference ranking metrics validation SQL",
+      "jd": "The role leads analytics and strategy for personalization algorithms, with strong machine learning and causal inference experience, roadmap partnership, and evaluation of algorithm performance for member-facing products.",
+      "user_desc": "I know recommender systems at a high level, but I want deeper practice in causal inference, ranking metrics, validation, and SQL analysis.",
+      "days_left": 8,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "SQL"
+      ],
+      "expected_skills": [
+        "recommender_systems",
+        "ranking_and_search",
+        "validation",
+        "sql_aggregation"
+      ],
+      "expected_concepts": [
+        "causal inference",
+        "personalization performance",
+        "ranking metrics",
+        "experimentation"
+      ],
+      "target_type_mix": {
+        "coding": 0.35,
+        "theory": 0.65
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_013_netflix_infrastructure_experimentation",
+      "company": "Netflix",
+      "role_title": "Data Scientist, Infrastructure Experimentation",
+      "role_family": "experimentation_platform",
+      "source_url": "https://explore.jobs.netflix.net/careers/job/790314485095",
+      "query": "experimentation platform metric validity hypothesis testing variance SQL pandas array",
+      "jd": "This data science role focuses on experimentation infrastructure, reliable metric design, analysis quality, statistical validity, and scalable decision support for engineering teams.",
+      "user_desc": "I have analytics experience but I am not confident with hypothesis testing, variance, experiment design, and Python coding under time pressure.",
+      "days_left": 5,
+      "expected_categories": [
+        "Statistics",
+        "SQL",
+        "Pandas",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "validation",
+        "sql_aggregation",
+        "pandas_data_inspection",
+        "algo_array_string"
+      ],
+      "expected_concepts": [
+        "experimentation platform",
+        "metric validity",
+        "hypothesis testing",
+        "variance"
+      ],
+      "target_type_mix": {
+        "coding": 0.4,
+        "theory": 0.6
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_014_uber_marketplace_scientist",
+      "company": "Uber",
+      "role_title": "Senior Scientist, Marketplace",
+      "role_family": "marketplace_ds",
+      "source_url": "https://www.uber.com/global/ml/careers/list/155218/",
+      "query": "marketplace pricing causal inference optimization matching graph greedy SQL regression",
+      "jd": "The marketplace scientist works end to end on analytics, modeling, experimentation, optimization, causal inference, pricing, matching, dispatch, and large-scale marketplace dynamics.",
+      "user_desc": "I have an economics and statistics background. I am weak on coding algorithms and want to improve optimization, SQL, and causal inference interview readiness.",
+      "days_left": 12,
+      "expected_categories": [
+        "Statistics",
+        "ML",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "linear_regression",
+        "validation",
+        "sql_join",
+        "algo_greedy",
+        "algo_graph"
+      ],
+      "expected_concepts": [
+        "causal inference",
+        "marketplace dynamics",
+        "pricing",
+        "matching",
+        "optimization"
+      ],
+      "target_type_mix": {
+        "coding": 0.5,
+        "theory": 0.5
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_015_uber_maps_ranking_eta",
+      "company": "Uber",
+      "role_title": "Data Scientist, Maps Ranking and ETA",
+      "role_family": "geospatial_ranking",
+      "source_url": "https://jobs.uber.com/en/teams/sciences/",
+      "query": "maps ETA routing shortest path graph ranking time series SQL diagnostics",
+      "jd": "The team uses data science and machine learning for maps, ETA prediction, routing, search and ranking, pickup and dropoff recommendation, pricing, matching, and platform measurement.",
+      "user_desc": "I worked on tabular models but not maps. Please focus on graph algorithms, shortest paths, ranking, time series, and SQL diagnostics.",
+      "days_left": 9,
+      "expected_categories": [
+        "Algorithms",
+        "ML",
+        "SQL"
+      ],
+      "expected_skills": [
+        "algo_graph",
+        "algo_shortest_path",
+        "ranking_and_search",
+        "time_series",
+        "sql_group_by"
+      ],
+      "expected_concepts": [
+        "ETA prediction",
+        "routing",
+        "geospatial ranking",
+        "diagnostic metrics"
+      ],
+      "target_type_mix": {
+        "coding": 0.6,
+        "theory": 0.4
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_016_airbnb_marketplace_pricing",
+      "company": "Airbnb",
+      "role_title": "Staff Data Scientist, Marketplace Pricing",
+      "role_family": "marketplace_ds",
+      "source_url": "https://careers.airbnb.com/positions/6196803/",
+      "query": "pricing guidance marketplace experimentation causal machine learning regression gradient boosting SQL intervals",
+      "jd": "This marketplace role works on pricing guidance, experimentation, causal machine learning, marketplace data science, and algorithmic product decisions for hosts and guests.",
+      "user_desc": "I know product analytics and experimentation, but I need to prepare for pricing models, regression, causal inference, SQL windows, and some algorithm questions.",
+      "days_left": 8,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "linear_regression",
+        "gradient_boosting",
+        "validation",
+        "sql_window_function",
+        "algo_intervals"
+      ],
+      "expected_concepts": [
+        "pricing",
+        "causal inference",
+        "marketplace experimentation",
+        "treatment effects"
+      ],
+      "target_type_mix": {
+        "coding": 0.45,
+        "theory": 0.55
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_017_airbnb_travel_insurance_algorithms",
+      "company": "Airbnb",
+      "role_title": "Senior Data Scientist, Guest Travel Insurance Algorithms",
+      "role_family": "recommendation_algorithms",
+      "source_url": "https://careers.airbnb.com/positions/7926614/",
+      "query": "travel insurance package personalization recommendation ranking intent modeling gradient boosting text features SQL heap",
+      "jd": "The role develops package personalization, recommendations, content ranking, messaging strategy, intent modeling, gradient boosting or deep learning models, and experiment analysis using structured and unstructured signals.",
+      "user_desc": "I have strong SQL and product sense. I need to improve recommender systems, ranking, gradient boosting, text features, and medium algorithm coding.",
+      "days_left": 10,
+      "expected_categories": [
+        "ML",
+        "Algorithms",
+        "SQL"
+      ],
+      "expected_skills": [
+        "recommender_systems",
+        "ranking_and_search",
+        "gradient_boosting",
+        "text_classification",
+        "algo_heap",
+        "sql_cte"
+      ],
+      "expected_concepts": [
+        "intent modeling",
+        "personalized package ranking",
+        "unstructured signals",
+        "experiment analysis"
+      ],
+      "target_type_mix": {
+        "coding": 0.5,
+        "theory": 0.5
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_018_meta_ai_personalization",
+      "company": "Meta",
+      "role_title": "Machine Learning Engineer, AI Personalization",
+      "role_family": "mle",
+      "source_url": "https://www.metacareers.com/teams/technology?tab=AI",
+      "query": "large scale AI personalization recommendation ranking neural networks graph dynamic programming validation",
+      "jd": "The role works on large-scale AI systems for personalization, model quality, ranking, recommendation, user feedback signals, and production machine learning.",
+      "user_desc": "I am a software engineer moving into ML. I need a plan heavy on algorithms, ranking/recommenders, validation, and neural network basics.",
+      "days_left": 14,
+      "expected_categories": [
+        "Algorithms",
+        "ML",
+        "SQL"
+      ],
+      "expected_skills": [
+        "algo_graph",
+        "algo_dp",
+        "ranking_and_search",
+        "recommender_systems",
+        "neural_networks",
+        "validation"
+      ],
+      "expected_concepts": [
+        "personalization",
+        "large scale ML",
+        "feedback signals",
+        "production ML"
+      ],
+      "target_type_mix": {
+        "coding": 0.6,
+        "theory": 0.4
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_019_meta_product_growth_analytics",
+      "company": "Meta",
+      "role_title": "Product Growth Analyst",
+      "role_family": "product_analytics",
+      "source_url": "https://www.metacareers.com/life/driving-facebook-growth-with-denise/",
+      "query": "product growth analytics funnels product metrics experiments SQL joins pandas cleaning",
+      "jd": "This product growth analytics case emphasizes exploratory analysis, funnels, product metrics, marketing analytics, experiment interpretation, and communicating insights that guide product changes.",
+      "user_desc": "I am very comfortable with business cases but rusty on SQL joins, pandas cleaning, and statistical testing.",
+      "days_left": 4,
+      "expected_categories": [
+        "SQL",
+        "Pandas",
+        "Statistics",
+        "Product"
+      ],
+      "expected_skills": [
+        "sql_join",
+        "sql_group_by",
+        "pandas_data_cleaning",
+        "validation"
+      ],
+      "expected_concepts": [
+        "funnels",
+        "product metrics",
+        "growth analytics",
+        "experiments"
+      ],
+      "target_type_mix": {
+        "coding": 0.55,
+        "theory": 0.45
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_020_google_search_eval_new_grad",
+      "company": "Google",
+      "role_title": "Data Scientist, Search Evaluation",
+      "role_family": "search_quality",
+      "source_url": "https://www.google.com/about/careers/applications/jobs/results/94480883905372870-senior-data-scientist-core-ranking-and-ai-context",
+      "query": "search evaluation query analysis ranking metrics SQL aggregation filter array string validation",
+      "jd": "The role supports search quality measurement, ranking evaluation, statistical modeling, query analysis, experiment design, and automated evaluation dashboards for search and AI answer experiences.",
+      "user_desc": "I am a new grad with ML coursework. I want balanced preparation across SQL, ranking theory, validation metrics, and common array/string coding questions.",
+      "days_left": 6,
+      "expected_categories": [
+        "ML",
+        "SQL",
+        "Algorithms",
+        "Statistics"
+      ],
+      "expected_skills": [
+        "ranking_and_search",
+        "validation",
+        "sql_filter",
+        "sql_aggregation",
+        "algo_array_string"
+      ],
+      "expected_concepts": [
+        "search eval",
+        "query analysis",
+        "ranking metrics",
+        "dashboard metrics"
+      ],
+      "target_type_mix": {
+        "coding": 0.5,
+        "theory": 0.5
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_021_microsoft_data_ai_platform",
+      "company": "Microsoft",
+      "role_title": "Data Scientist, AI Data Platform",
+      "role_family": "data_platform_ds",
+      "source_url": "https://careers.microsoft.com/v2/global/en/exploremicrosoft",
+      "query": "anomaly detection classification data integrity SQL CTE null handling pandas reshaping",
+      "jd": "The role analyzes high-dimensional data, builds anomaly detection and classification models, contributes to data pipelines, checks data integrity, and works with SQL-like analytics systems.",
+      "user_desc": "I have built dashboards and ETL scripts but need ML classification, time series anomaly detection, SQL CTEs, and pandas reshaping practice.",
+      "days_left": 7,
+      "expected_categories": [
+        "SQL",
+        "Pandas",
+        "ML"
+      ],
+      "expected_skills": [
+        "classification",
+        "time_series",
+        "sql_cte",
+        "sql_null_handling",
+        "pandas_data_reshaping"
+      ],
+      "expected_concepts": [
+        "anomaly detection",
+        "data integrity",
+        "high dimensional data",
+        "pipeline analytics"
+      ],
+      "target_type_mix": {
+        "coding": 0.55,
+        "theory": 0.45
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_022_apple_people_analytics_ml",
+      "company": "Apple",
+      "role_title": "Machine Learning Engineer, People Analytics",
+      "role_family": "people_analytics",
+      "source_url": "https://jobs.apple.com/en-us/details/200665705-0836/machine-learning-engineer-people-analytics",
+      "query": "people analytics predictive modeling survey data fairness imbalance feature selection validation regression SQL",
+      "jd": "The role applies predictive modeling and statistical analysis to people analytics problems involving surveys, recruiting, compensation, decision support, model deployment, and metric interpretation.",
+      "user_desc": "I have HR analytics experience, good SQL, and basic statistics. I am weak in fairness, imbalance, model validation, and feature selection.",
+      "days_left": 6,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "SQL"
+      ],
+      "expected_skills": [
+        "fairness_and_imbalance",
+        "feature_selection",
+        "validation",
+        "linear_regression",
+        "sql_group_by"
+      ],
+      "expected_concepts": [
+        "people analytics",
+        "survey data",
+        "predictive modeling",
+        "fairness"
+      ],
+      "target_type_mix": {
+        "coding": 0.35,
+        "theory": 0.65
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_023_apple_annotation_llm_eval",
+      "company": "Apple",
+      "role_title": "Data Scientist, Survey Design and ML Evaluation",
+      "role_family": "llm_evaluation",
+      "source_url": "https://jobs.apple.com/en-us/details/200659168-0836/data-scientist-survey-design-data-annotation-and-machine-learning-evaluation",
+      "query": "LLM evaluation annotation quality survey design prompt optimization text classification validation SQL",
+      "jd": "The role centers on survey design, data annotation, LLM-as-judge evaluation, prompt optimization, statistical analysis, and assessing quality of machine learning systems.",
+      "user_desc": "I know prompt engineering but not formal evaluation. I need validation metrics, statistics, text classification, and SQL sampling queries.",
+      "days_left": 5,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "SQL"
+      ],
+      "expected_skills": [
+        "validation",
+        "text_classification",
+        "sql_distinct",
+        "sql_group_by"
+      ],
+      "expected_concepts": [
+        "LLM as judge",
+        "annotation quality",
+        "survey design",
+        "prompt optimization"
+      ],
+      "target_type_mix": {
+        "coding": 0.3,
+        "theory": 0.7
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_024_amazon_customer_behavior_experiments",
+      "company": "Amazon",
+      "role_title": "Applied Scientist, Customer Behavior Modeling",
+      "role_family": "applied_scientist",
+      "source_url": "https://www.amazon.jobs/en/jobs/10442969/applied-scientist-personalization-ranking",
+      "query": "customer behavior personalization recommender validation SQL subquery hash map heap",
+      "jd": "The scientist models customer behavior, improves personalization, designs experiments, uses large datasets, and turns offline model gains into customer-facing product launches.",
+      "user_desc": "My ML is stronger than my SQL. I want practice on recommender systems, validation, SQL subqueries, and classic hash map or heap problems.",
+      "days_left": 8,
+      "expected_categories": [
+        "ML",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "recommender_systems",
+        "validation",
+        "sql_subquery",
+        "algo_hash_map",
+        "algo_heap"
+      ],
+      "expected_concepts": [
+        "customer behavior",
+        "personalization",
+        "offline to online evaluation",
+        "experiments"
+      ],
+      "target_type_mix": {
+        "coding": 0.55,
+        "theory": 0.45
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_025_google_search_intelligence_quality",
+      "company": "Google",
+      "role_title": "Senior Data Scientist, Research, Search Intelligence Quality",
+      "role_family": "search_quality",
+      "source_url": "https://www.google.com/about/careers/applications/jobs/results/113047778417877702-senior-data-scientist/",
+      "query": "search intelligence quality AI evaluation human ratings offline eval live experiments ranking validation SQL",
+      "jd": "The role evaluates Google Search AI products using human-rated data, offline evaluation, live experiments, user surveys, statistical methods, and measurement frameworks for improving generative AI quality.",
+      "user_desc": "I am preparing for search quality and AI evaluation roles. I need ranking, validation, experiment analysis, SQL, and some medium coding questions.",
+      "days_left": 11,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "ranking_and_search",
+        "validation",
+        "sql_aggregation",
+        "sql_window_function",
+        "algo_heap"
+      ],
+      "expected_concepts": [
+        "AI evaluation",
+        "human ratings",
+        "offline eval",
+        "live experiments",
+        "search quality"
+      ],
+      "target_type_mix": {
+        "coding": 0.4,
+        "theory": 0.6
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_026_uber_experimentation_platform",
+      "company": "Uber",
+      "role_title": "Data Scientist, Experimentation Platform",
+      "role_family": "experimentation_platform",
+      "source_url": "https://jobs.uber.com/en/teams/sciences/",
+      "query": "experiment power generalizability measurement models metric design SQL case when array",
+      "jd": "The experimentation platform team builds measurement models and experiment analysis methods used across the marketplace. The work emphasizes validity, power, generalizability, metrics, dashboards, and decision support.",
+      "user_desc": "I have strong SQL and analytics but weak statistical theory. I want mostly theory plus a few coding problems for SQL and arrays.",
+      "days_left": 6,
+      "expected_categories": [
+        "Statistics",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "validation",
+        "sql_aggregation",
+        "sql_case_when",
+        "algo_array_string"
+      ],
+      "expected_concepts": [
+        "experiment power",
+        "generalizability",
+        "measurement models",
+        "metric design"
+      ],
+      "target_type_mix": {
+        "coding": 0.35,
+        "theory": 0.65
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_027_airbnb_intent_modeling",
+      "company": "Airbnb",
+      "role_title": "Data Scientist, Guest Intent Modeling",
+      "role_family": "recommendation_algorithms",
+      "source_url": "https://careers.airbnb.com/positions/7926614/",
+      "query": "guest intent modeling booking history behavior signals text classification gradient boosting recommendation SQL join sorting",
+      "jd": "This case focuses on predicting traveler intent using booking history, user behavior, unstructured signals, recommendation models, ranking, and experiment-driven product iteration.",
+      "user_desc": "I have NLP experience and want to practice text classification, gradient boosting, recommender systems, and SQL joins.",
+      "days_left": 7,
+      "expected_categories": [
+        "ML",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "text_classification",
+        "gradient_boosting",
+        "recommender_systems",
+        "sql_join",
+        "algo_sorting"
+      ],
+      "expected_concepts": [
+        "intent modeling",
+        "behavior signals",
+        "booking history",
+        "ranking"
+      ],
+      "target_type_mix": {
+        "coding": 0.45,
+        "theory": 0.55
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_028_microsoft_time_series_anomaly",
+      "company": "Microsoft",
+      "role_title": "Machine Learning Scientist, Anomaly Detection",
+      "role_family": "ml_data_platform",
+      "source_url": "https://careers.microsoft.com/v2/global/en/students",
+      "query": "time series anomaly detection classification SQL date processing tree heap monitoring data quality",
+      "jd": "The role applies machine learning to high-dimensional system data, anomaly detection, classification, time series analysis, data quality monitoring, and scalable analytics pipelines.",
+      "user_desc": "I am strongest in Python but weak in time series and SQL date functions. I also need basic tree and heap coding practice.",
+      "days_left": 8,
+      "expected_categories": [
+        "ML",
+        "SQL",
+        "Algorithms"
+      ],
+      "expected_skills": [
+        "time_series",
+        "classification",
+        "sql_date_processing",
+        "algo_tree_bst",
+        "algo_heap"
+      ],
+      "expected_concepts": [
+        "anomaly detection",
+        "monitoring",
+        "high dimensional data",
+        "data quality"
+      ],
+      "target_type_mix": {
+        "coding": 0.55,
+        "theory": 0.45
+      },
+      "should_include_algorithms": true
+    },
+    {
+      "case_id": "eval_029_google_ai_overview_evals",
+      "company": "Google",
+      "role_title": "Data Scientist, AI Overview Evals",
+      "role_family": "llm_evaluation",
+      "source_url": "https://www.google.com/about/careers/applications/jobs/results/94480883905372870-senior-data-scientist-core-ranking-and-ai-context",
+      "query": "AI overview evaluation search answer quality ranking validation SQL aggregation window statistics",
+      "jd": "The role evaluates AI overview quality, builds measurements for search answer experiences, analyzes user-facing quality metrics, and partners with engineering to automate evals.",
+      "user_desc": "I have LLM application experience but lack statistical rigor. I want validation, ranking/search, SQL analysis, and experiment design practice.",
+      "days_left": 6,
+      "expected_categories": [
+        "ML",
+        "Statistics",
+        "SQL"
+      ],
+      "expected_skills": [
+        "validation",
+        "ranking_and_search",
+        "sql_aggregation",
+        "sql_window_function"
+      ],
+      "expected_concepts": [
+        "AI evals",
+        "search answer quality",
+        "measurement automation",
+        "statistical rigor"
+      ],
+      "target_type_mix": {
+        "coding": 0.35,
+        "theory": 0.65
+      },
+      "should_include_algorithms": false
+    },
+    {
+      "case_id": "eval_030_microsoft_ai_software_engineer",
+      "company": "Microsoft",
+      "role_title": "Software Engineer II, AI-Driven Network and Security Intelligence",
+      "role_family": "ai_software_engineering",
+      "source_url": "https://careers.microsoft.com/v2/global/en/exploremicrosoft",
+      "query": "AI software engineer machine learning anomaly detection classification data pipelines Python SQL algorithms",
+      "jd": "The role develops AI-driven network and security intelligence solutions, applies machine learning models for anomaly detection and classification, contributes to GenAI solutions, and builds data engineering pipelines.",
+      "user_desc": "I have a machine learning degree but fail coding interviews. I want the plan to include many algorithm questions while still covering classification, validation, and SQL.",
+      "days_left": 14,
+      "expected_categories": [
+        "Algorithms",
+        "ML",
+        "SQL"
+      ],
+      "expected_skills": [
+        "algo_array_string",
+        "algo_hash_map",
+        "algo_tree_bst",
+        "algo_graph",
+        "algo_dp",
+        "classification",
+        "validation"
+      ],
+      "expected_concepts": [
+        "AI software engineering",
+        "anomaly detection",
+        "classification",
+        "data pipelines",
+        "coding interview"
+      ],
+      "target_type_mix": {
+        "coding": 0.7,
+        "theory": 0.3
+      },
+      "should_include_algorithms": true
+    }
+  ]
+}

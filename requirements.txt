@@ -1,0 +1,17 @@
+# Core app and LLM orchestration
+streamlit==1.52.2
+openai==2.13.0
+python-dotenv==1.0.1
+pydantic==2.12.5
+
+# LangChain / LangGraph retrieval stack
+langchain-core
+langchain-openai
+langchain-qdrant
+langgraph
+qdrant-client
+rank-bm25
+
+# Data preparation utilities
+beautifulsoup4
+tqdm==4.67.1
