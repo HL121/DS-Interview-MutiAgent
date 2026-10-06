@@ -2,6 +2,7 @@ streamlit==1.52.2
 openai==2.13.0
 python-dotenv==1.0.1
 langgraph
+langgraph-checkpoint-sqlite
 langchain
 langchain-openai
 langchain-qdrant

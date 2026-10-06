@@ -42,3 +42,6 @@ knowledge_base/vectorstores/
 
 # Generated evaluation outputs
 eval/*_results.json
+
+# LangGraph checkpoint DB (short-term memory, runtime user data)
+.state/

@@ -1,5 +1,8 @@
 from typing import TypedDict, Optional, List, Dict, Any
 import os
+import sqlite3
+import uuid
+from functools import lru_cache
 from pathlib import Path
 from scripts.Agent1.skill_analyzer_agent import SkillAnalyzerAgent
 from scripts.scope_planner_agent import ScopePlannerAgent
@@ -8,12 +11,19 @@ from scripts.Agent2.langchain_retrieval import init_retriever
 from scripts.Agent3.Planning_Agent import normalize_tasks, run_planning_agent
 from scripts.langchain_llm import get_chat_model
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 client = get_chat_model()
 
 
 def init_pipeline_retriever():
     use_agentic = os.getenv("USE_AGENTIC_RETRIEVAL", "true").lower() not in {"0", "false", "no"}
+    return _cached_retriever(use_agentic)
+
+
+@lru_cache(maxsize=None)
+def _cached_retriever(use_agentic: bool):
+    # Build the Qdrant client and BM25 index once per process instead of on every run.
     if use_agentic:
         return init_agentic_retriever(llm=client)
     return init_retriever()
@@ -37,7 +47,8 @@ class AgentState(TypedDict):
     difficulty_distribution: Optional[Dict[str, float]]
     plan: Optional[Dict[str, int]]
 
-    # Agent 2 Output
+    # Agent 2 Output: all candidates per skill. Agent 3 only uses some of them; the rest
+    # stay here as the candidate pool for adding questions later without re-retrieving.
     retrieve_questions: Optional[Dict[str, list]]
 
     # Agent 3 Output
@@ -59,10 +70,11 @@ def agent_scope(state:AgentState):
     days_left = state.get("days_left") 
     agent = ScopePlannerAgent(client=client)
     result = agent.run(user_desc=user_desc, jd_text=jd, skill_weights=weights, days_left=days_left)
-    state["total_questions"] = result["total_questions"]
-    state["difficulty_distribution"] = result["difficulty_distribution"]
-    state["plan"] = result["skill_plan"]
-    return {"total":result["total_questions"], "diff":result["difficulty_distribution"], "plan":result["skill_plan"]}
+    return {
+        "total_questions": result["total_questions"],
+        "difficulty_distribution": result["difficulty_distribution"],
+        "plan": result["skill_plan"],
+    }
 
 def agent2(state:AgentState):
     plan = state.get("plan")
@@ -112,6 +124,11 @@ def agent3(state:AgentState):
         client=client
         )
 
+    # Per-question progress, later updated to "done" / "wrong" by user feedback.
+    for day in days:
+        for task in day:
+            task["status"] = "todo"
+
     return {"days": days, "summaries": summaries}
 
 workflow = StateGraph(AgentState)
@@ -126,19 +143,40 @@ workflow.add_edge("agent_scope", "agent2")
 workflow.add_edge("agent2", "agent3")
 workflow.add_edge("agent3", END)
 
-agent_all = workflow.compile()
+# Short-term memory. These two lines only configure where state is saved; nothing is
+# written here. During invoke(), LangGraph writes a state snapshot after every node,
+# keyed by thread_id. check_same_thread=False: the connection is created once at import,
+# but Streamlit calls the graph from different threads.
+CHECKPOINT_DB = Path(os.getenv("CHECKPOINT_DB", Path(__file__).resolve().parent / ".state" / "checkpoints.db"))
+CHECKPOINT_DB.parent.mkdir(parents=True, exist_ok=True)
+checkpointer = SqliteSaver(sqlite3.connect(CHECKPOINT_DB, check_same_thread=False))
+agent_all = workflow.compile(checkpointer=checkpointer)
 
-def multi_agent(jd,user_desc,days_left):
+def _plan_output(state: Dict[str, Any], thread_id: str) -> Dict[str, Any]:
+    return {
+        "thread_id": thread_id,
+        "days": state.get("days"),
+        "summaries": state.get("summaries"),
+        "total_questions": state.get("total_questions"),
+        "difficulty_distribution": state.get("difficulty_distribution"),
+        "skill_plan": state.get("plan"),
+    }
+
+def multi_agent(jd, user_desc, days_left, thread_id: Optional[str] = None):
+    # thread_id identifies one preparation session; a new one is created if not given.
+    thread_id = thread_id or str(uuid.uuid4())
     initial_state : AgentState = {
         "jd": jd,
         "user_desc": user_desc,
         "days_left": days_left
     }
-    final_state = agent_all.invoke(initial_state)
-    return {
-        "days": final_state.get("days"),
-        "summaries": final_state.get("summaries"),
-        "total_questions": final_state.get("total_questions"),
-        "difficulty_distribution": final_state.get("difficulty_distribution"),
-        "skill_plan": final_state.get("plan"),
-    }
+    config = {"configurable": {"thread_id": thread_id}}
+    final_state = agent_all.invoke(initial_state, config)
+    return _plan_output(final_state, thread_id)
+
+def load_plan(thread_id: str) -> Optional[Dict[str, Any]]:
+    # Read the latest saved state of this session from the checkpoint DB (survives restarts).
+    state = agent_all.get_state({"configurable": {"thread_id": thread_id}}).values
+    if not state:
+        return None
+    return _plan_output(state, thread_id)

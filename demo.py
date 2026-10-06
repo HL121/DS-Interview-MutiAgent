@@ -1,5 +1,5 @@
 import streamlit as st
-from orchestration import multi_agent
+from orchestration import multi_agent, load_plan
 import uuid
 
 st.set_page_config(page_title="DS-Interview-Copilot", layout="centered")
@@ -85,19 +85,18 @@ if st.session_state.current_chat_id is None:
         if not jd.strip() and not user_desc.strip():
             st.warning("Please fill in both fields.")
         else:
+            # The chat id doubles as the LangGraph thread_id, so the plan is saved in the
+            # checkpoint DB instead of only in this browser session.
+            chat_id = str(uuid.uuid4())
             with st.spinner("Running multi-agent pipeline..."):
-                result = multi_agent(jd, user_desc, days_left)
-                days = result["days"]
-                summaries = result["summaries"]
+                multi_agent(jd, user_desc, days_left, thread_id=chat_id)
 
             chat = {
-                "id": str(uuid.uuid4()),
+                "id": chat_id,
                 "title": f"Chat {len(st.session_state.chats) + 1}",
                 "jd": jd,
                 "user_desc": user_desc,
                 "days_left": days_left,
-                "days": days,
-                "summaries": summaries
             }
 
             st.session_state.chats.insert(0, chat)
@@ -112,4 +111,8 @@ else:
     with st.expander("📄 Job Description", expanded=False):
         st.write(chat["jd"])
     st.divider()
-    display_days(chat["days"], chat["summaries"])
+    plan = load_plan(chat["id"])
+    if plan is None:
+        st.warning("No saved plan found for this chat.")
+    else:
+        display_days(plan["days"], plan["summaries"])

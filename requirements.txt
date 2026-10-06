@@ -9,6 +9,7 @@ langchain-core
 langchain-openai
 langchain-qdrant
 langgraph
+langgraph-checkpoint-sqlite
 qdrant-client
 rank-bm25
 
