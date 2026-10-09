@@ -12,8 +12,11 @@ from scripts.Agent3.Planning_Agent import normalize_tasks, run_planning_agent
 from scripts.langchain_llm import get_chat_model
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
+from scripts.controller.feedback import adjust_weights, apply_feedback
+from scripts.controller.memory import completed_question_ids, get_preferences
 
 client = get_chat_model()
+DEFAULT_USER = "default_user"  # no login yet; long-term memory is keyed by user_id
 
 
 def init_pipeline_retriever():
@@ -36,11 +39,14 @@ class AgentState(TypedDict):
     jd: str
     user_desc: str
     days_left: int
+    user_id: str
+    thread_id: str
 
     # Agent 1 Output
     extracted: Optional[Dict[str, Any]]
     mapped: Optional[Dict[str, Any]]
     weights: Optional[Dict[str, int]]
+    base_weights: Optional[Dict[str, float]]  # Agent1 weights before long-term memory adjustment
 
     # Agent scoop planner Output
     total_questions: Optional[int]  
@@ -61,13 +67,19 @@ def agent1(state:AgentState):
     agent = SkillAnalyzerAgent(client=client)
     result = agent.run(jd_text=jd, user_desc=user_desc)
     state["weights"] = result["weights"]
-    return {"extracted":result["extracted"], "mapped":result["mapped"], "weights":result["weights"]}
+    # Long-term memory: boost skills this user was weak in before (also from past sessions).
+    weights = adjust_weights(result["weights"], state.get("user_id") or DEFAULT_USER)
+    return {"extracted":result["extracted"], "mapped":result["mapped"], "base_weights":result["weights"], "weights":weights}
 
 def agent_scope(state:AgentState):
     jd = state.get("jd")
     user_desc = state.get("user_desc")
     weights = state.get("weights")
     days_left = state.get("days_left") 
+    prefs = {k: v for k, v in (get_preferences(state.get("user_id") or DEFAULT_USER) or {}).items() if v}
+    if prefs:
+        # Stored learning preferences reach the Scope Planner through the user description.
+        user_desc = f"{user_desc}\nLearning preferences (daily_load = max questions per day): {prefs}"
     agent = ScopePlannerAgent(client=client)
     result = agent.run(user_desc=user_desc, jd_text=jd, skill_weights=weights, days_left=days_left)
     return {
@@ -81,6 +93,7 @@ def agent2(state:AgentState):
     jd = state.get("jd") or ""
     user_desc = state.get("user_desc") or ""
     retriever = init_pipeline_retriever()
+    completed = completed_question_ids(state.get("user_id") or DEFAULT_USER)
     retrieve_by_skill = {}
     for skill, k in plan.items():
         num_qs = int(k)
@@ -97,7 +110,8 @@ def agent2(state:AgentState):
             jd_text=jd,
             user_desc=user_desc,
         )
-        retrieve_by_skill[skill] = questions
+        # Long-term memory: drop questions this user has already done (in any session).
+        retrieve_by_skill[skill] = [q for q in questions if q["id"] not in completed]
 
     return {"retrieve_questions": retrieve_by_skill}
 
@@ -162,13 +176,15 @@ def _plan_output(state: Dict[str, Any], thread_id: str) -> Dict[str, Any]:
         "skill_plan": state.get("plan"),
     }
 
-def multi_agent(jd, user_desc, days_left, thread_id: Optional[str] = None):
+def multi_agent(jd, user_desc, days_left, thread_id: Optional[str] = None, user_id: str = DEFAULT_USER):
     # thread_id identifies one preparation session; a new one is created if not given.
     thread_id = thread_id or str(uuid.uuid4())
     initial_state : AgentState = {
         "jd": jd,
         "user_desc": user_desc,
-        "days_left": days_left
+        "days_left": days_left,
+        "user_id": user_id,
+        "thread_id": thread_id,
     }
     config = {"configurable": {"thread_id": thread_id}}
     final_state = agent_all.invoke(initial_state, config)
@@ -180,3 +196,20 @@ def load_plan(thread_id: str) -> Optional[Dict[str, Any]]:
     if not state:
         return None
     return _plan_output(state, thread_id)
+
+def submit_feedback(
+    thread_id: str,
+    question_results: Optional[Dict[str, str]] = None,
+    struggling_skills: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """Record feedback for a saved plan, e.g. question_results={"lc:SQL_19": "wrong"},
+    struggling_skills=["sql_window_function"]. Updates statuses and weights; does not replan."""
+    config = {"configurable": {"thread_id": thread_id}}
+    state = agent_all.get_state(config).values
+    if not state:
+        raise ValueError(f"No saved plan for thread_id {thread_id}")
+    state = {**state, "thread_id": thread_id, "user_id": state.get("user_id") or DEFAULT_USER}
+    update = apply_feedback(state, question_results, struggling_skills)
+    # Write the update into the saved state without re-running any node (new checkpoint).
+    agent_all.update_state(config, update, as_node="agent3")
+    return update
