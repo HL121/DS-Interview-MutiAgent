@@ -1,8 +1,45 @@
 import json
 import math
+from collections import Counter
+from functools import lru_cache
+from pathlib import Path
 from typing import Dict, Any, Optional
 # from openai import OpenAI
 from scripts.langchain_llm import invoke_json
+from scripts.Agent3.Planning_Agent import normalize_skill_name
+
+MAX_SKILL_SHARE = 0.35  # no single skill takes more than about a third of the plan
+QUESTIONS_PATH = Path(__file__).resolve().parents[1] / "data" / "questions_normalized.jsonl"
+
+
+@lru_cache(maxsize=1)
+def bank_supply() -> Counter:
+    """How many questions the bank has per (normalized) skill."""
+    supply = Counter()
+    with QUESTIONS_PATH.open(encoding="utf-8") as f:
+        for line in f:
+            for skill in json.loads(line).get("taxonomy_skills") or []:
+                supply[normalize_skill_name(skill)] += 1
+    return supply
+
+
+def cap_quotas(skill_plan: Dict[str, int], skill_weights: Dict[str, float], supply: Counter) -> Dict[str, int]:
+    """Limit each quota to the questions the bank has for that skill and to MAX_SKILL_SHARE of the
+    plan, then hand the excess to the other skills one question at a time (highest weight per
+    already-assigned question first). If no skill can take more, the plan gets smaller."""
+    total = sum(skill_plan.values())
+    if not skill_plan or total <= 0:
+        return skill_plan
+    share_cap = max(math.ceil(MAX_SKILL_SHARE * total), math.ceil(total / len(skill_plan)))
+    caps = {s: min(supply.get(normalize_skill_name(s), 0), share_cap) for s in skill_plan}
+    plan = {s: min(q, caps[s]) for s, q in skill_plan.items()}
+    for _ in range(total - sum(plan.values())):
+        open_skills = [s for s in plan if plan[s] < caps[s]]
+        if not open_skills:
+            break
+        best = max(open_skills, key=lambda s: skill_weights.get(s, 0) / (plan[s] + 1))
+        plan[best] += 1
+    return plan
 
 ## Problem
 ## theory：如何定义题目数量？
@@ -157,9 +194,11 @@ class ScopePlannerAgent:
             skill_weights,
             tq
         )
+        # A quota larger than the bank can supply used to be filled with unrelated questions.
+        skill_plan = cap_quotas(skill_plan, skill_weights, bank_supply())
 
         return {
-            "total_questions": tq,
+            "total_questions": sum(skill_plan.values()),
             "difficulty_distribution": scope.get(
                 "difficulty_distribution",
                 {"easy": 0.3, "medium": 0.5, "hard": 0.2},

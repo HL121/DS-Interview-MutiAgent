@@ -2,13 +2,14 @@ from typing import TypedDict, Optional, List, Dict, Any
 import os
 import sqlite3
 import uuid
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 from scripts.Agent1.skill_analyzer_agent import SkillAnalyzerAgent
 from scripts.scope_planner_agent import ScopePlannerAgent
 from scripts.Agent2.agentic_retrieval import init_agentic_retriever
 from scripts.Agent2.langchain_retrieval import init_retriever
-from scripts.Agent3.Planning_Agent import normalize_tasks, run_planning_agent
+from scripts.Agent3.Planning_Agent import normalize_skill_name, normalize_tasks, run_planning_agent
 from scripts.langchain_llm import get_chat_model
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -41,6 +42,7 @@ class AgentState(TypedDict):
     days_left: int
     user_id: str
     thread_id: str
+    start_date: str  # plan day 1; used to know which plan day is today
 
     # Agent 1 Output
     extracted: Optional[Dict[str, Any]]
@@ -110,8 +112,13 @@ def agent2(state:AgentState):
             jd_text=jd,
             user_desc=user_desc,
         )
-        # Long-term memory: drop questions this user has already done (in any session).
-        retrieve_by_skill[skill] = [q for q in questions if q["id"] not in completed]
+        # Keep only questions labelled with this skill (keyword and multi-query search can drift to
+        # unrelated ones) and drop questions this user has already done (long-term memory).
+        wanted = normalize_skill_name(skill)
+        retrieve_by_skill[skill] = [
+            q for q in questions
+            if q["id"] not in completed and wanted in {normalize_skill_name(s) for s in q.get("taxonomy_skills") or []}
+        ]
 
     return {"retrieve_questions": retrieve_by_skill}
 
@@ -185,6 +192,7 @@ def multi_agent(jd, user_desc, days_left, thread_id: Optional[str] = None, user_
         "days_left": days_left,
         "user_id": user_id,
         "thread_id": thread_id,
+        "start_date": date.today().isoformat(),
     }
     config = {"configurable": {"thread_id": thread_id}}
     final_state = agent_all.invoke(initial_state, config)

@@ -11,6 +11,8 @@ from contextlib import closing
 from pathlib import Path
 from typing import Iterable, Optional
 
+from scripts.Agent3.Planning_Agent import normalize_skill_name
+
 LONG_TERM_DB = Path(os.getenv("LONG_TERM_DB", Path(__file__).resolve().parents[2] / ".state" / "long_term.db"))
 
 
@@ -35,7 +37,7 @@ def log_feedback(user_id: str, thread_id: str, rows: Iterable[tuple]) -> None:
     with closing(_connect()) as conn, conn:
         conn.executemany(
             "INSERT INTO feedback_log (user_id, thread_id, question_id, skill, result) VALUES (?, ?, ?, ?, ?)",
-            [(user_id, thread_id, qid, skill, result) for qid, skill, result in rows],
+            [(user_id, thread_id, qid, normalize_skill_name(skill), result) for qid, skill, result in rows],
         )
 
 
@@ -49,11 +51,12 @@ def completed_question_ids(user_id: str) -> set:
 
 
 def recent_results(user_id: str, skill: str, limit: int = 5) -> list:
-    """Latest results for one skill, newest first."""
+    """Latest results for one skill, newest first. Skill names are stored normalized
+    ("supervised_machine learning" and "supervised_machine_learning" are the same skill)."""
     with closing(_connect()) as conn:
         rows = conn.execute(
             "SELECT result FROM feedback_log WHERE user_id = ? AND skill = ? ORDER BY rowid DESC LIMIT ?",
-            (user_id, skill, limit),
+            (user_id, normalize_skill_name(skill), limit),
         ).fetchall()
     return [r[0] for r in rows]
 
