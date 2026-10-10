@@ -9,9 +9,9 @@ tool must see the state left by the previous one).
 """
 
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
-from typing import Annotated, Any, Dict, Optional
+from typing import Annotated, Any, Dict, Iterator, List, Optional
 
 from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, ToolMessage, trim_messages
 from langgraph.graph import END, START, StateGraph
@@ -21,7 +21,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from orchestration import (
     DEFAULT_USER, AgentState, _plan_output, agent1, agent2, agent3, agent_scope, checkpointer, client,
 )
-from scripts.controller.feedback import skill_factor
+from scripts.controller.feedback import apply_feedback, skill_factor
 from scripts.controller.memory import get_preferences
 from scripts.controller.replan import today_index
 from scripts.controller.tools import TAXONOMY, TOOLS
@@ -40,6 +40,22 @@ SYSTEM_PROMPT = (
 
 class AppState(AgentState):
     messages: Annotated[list[AnyMessage], add_messages]
+    title: str  # optional plan name shown in the demo
+
+
+GENERIC_HEADINGS = {"job overview", "overview", "about the role", "about the job", "job description",
+                    "responsibilities", "the role", "role overview", "summary", "description"}
+
+
+def plan_title(state: dict) -> str:
+    """The plan's name: the user's title, else the first JD line that is not a generic heading."""
+    if state.get("title"):
+        return state["title"]
+    for line in (state.get("jd") or "").splitlines():
+        text = line.strip().strip("#*- ").rstrip(":")
+        if text and text.lower() not in GENERIC_HEADINGS:
+            return text[:40]
+    return "Untitled plan"
 
 
 def _turn_start(messages: list) -> int:
@@ -148,6 +164,53 @@ def chat(thread_id: str, message: str) -> str:
 def load_plan(thread_id: str) -> Optional[Dict[str, Any]]:
     state = app.get_state(_config(thread_id)).values
     return _plan_output(state, thread_id) if state else None
+
+
+# ---------- helpers for the Streamlit demo ----------
+def stream_plan(jd: str, user_desc: str, days_left: int, thread_id: str, user_id: str = DEFAULT_USER,
+                title: str = "") -> Iterator[str]:
+    """Like start_plan, but yields each pipeline node name as it finishes (for a progress view)."""
+    initial = {"jd": jd, "user_desc": user_desc, "days_left": days_left, "user_id": user_id,
+               "thread_id": thread_id, "start_date": date.today().isoformat(), "title": title.strip()}
+    for update in app.stream(initial, _config(thread_id), stream_mode="updates"):
+        yield from update
+
+
+def get_state(thread_id: str) -> dict:
+    return app.get_state(_config(thread_id)).values
+
+
+def submit_feedback(thread_id: str, question_results: Optional[Dict[str, str]] = None) -> dict:
+    """Record done/wrong for questions from the UI buttons: statuses, long-term memory and
+    weights are updated; the plan is not re-planned (the user can ask for that in the chat)."""
+    state = get_state(thread_id)
+    state = {**state, "thread_id": thread_id, "user_id": state.get("user_id") or DEFAULT_USER}
+    update = apply_feedback(state, question_results)
+    app.update_state(_config(thread_id), update, as_node="agent3")  # new checkpoint, no node re-run
+    return update
+
+
+def advance_day(thread_id: str) -> int:
+    """Demo only: move the plan's start one day back, as if a day had passed. Returns today's index."""
+    state = get_state(thread_id)
+    start = date.fromisoformat(state["start_date"]) if state.get("start_date") else date.today()
+    app.update_state(_config(thread_id), {"start_date": (start - timedelta(days=1)).isoformat()}, as_node="agent3")
+    return today_index(get_state(thread_id))
+
+
+def list_threads(user_id: str = DEFAULT_USER) -> List[dict]:
+    """This user's finished plans, newest first: [{"thread_id", "title", "days"}]."""
+    checkpointer.setup()  # tables are created lazily on first write; a fresh DB has none yet
+    rows = checkpointer.conn.execute(
+        "SELECT thread_id, MAX(checkpoint_id) AS last FROM checkpoints GROUP BY thread_id ORDER BY last DESC"
+    ).fetchall()
+    threads = []
+    for thread_id, _ in rows:
+        state = get_state(thread_id)
+        if not state.get("days") or (state.get("user_id") or DEFAULT_USER) != user_id:
+            continue
+        threads.append({"thread_id": thread_id, "title": plan_title(state), "days": len(state["days"])})
+    return threads
 
 
 if __name__ == "__main__":

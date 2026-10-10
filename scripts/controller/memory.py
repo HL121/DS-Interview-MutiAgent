@@ -61,6 +61,23 @@ def recent_results(user_id: str, skill: str, limit: int = 5) -> list:
     return [r[0] for r in rows]
 
 
+def recent_log(user_id: str, limit: int = 5) -> list:
+    """Latest feedback records, newest first: (question_id or None, skill, result).
+    One answer can produce several rows (one per skill); they are collapsed to one."""
+    with closing(_connect()) as conn:
+        rows = conn.execute(
+            "SELECT question_id, skill, result FROM feedback_log WHERE user_id = ? ORDER BY rowid DESC LIMIT ?",
+            (user_id, limit * 4),
+        ).fetchall()
+    seen, out = set(), []
+    for qid, skill, result in rows:
+        key = (qid or skill, result)
+        if key not in seen:
+            seen.add(key)
+            out.append((qid, skill, result))
+    return out[:limit]
+
+
 def get_preferences(user_id: str) -> Optional[dict]:
     with closing(_connect()) as conn:
         row = conn.execute(

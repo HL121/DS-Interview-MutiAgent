@@ -1,82 +1,70 @@
 # DS Interview Preparation Assistant
 
-An intelligent multi-agent planning system that assists candidates in preparing for data science technical interviews. Given the days left, a job description, and a user profile, it can generate a **skill-aware**, **difficulty-controlled**, and **time-constrained** study plan.
+A continuously tracking interview learning assistant for data science roles. Given a job description, a user profile and the days left, it builds a **skill-aware**, **difficulty-controlled**, **time-constrained** study plan, then keeps it up to date as the user reports progress: finished and wrong questions, weak topics, and changes to the interview date.
 
 ---
 
 ## 🌟 Features
 
-- **Multi-Agent Planning Architecture**  
-A system composed of specialized agents that collaboratively analyze job requirements, retrieve relevant interview problems, and generate structured preparation plans.
+- **Agentic workflow: a controller agent over specialized modules**  
+The first plan is built by a fixed pipeline (skill analysis → scope planning → retrieval → scheduling). After that, a ReAct controller agent reads the user's message and decides, through tool calling, which module to use: skill analysis, question retrieval, plan generation or plan update.
 
-- **Skill-Aware Interview Preparation**  
-Identifies required skills from job descriptions and user profile, and allocates preparation effort accordingly.
+- **Short-term and long-term memory**  
+The current plan, question statuses and conversation are persisted per session with a LangGraph checkpointer. Long-term memory records completed questions, mistakes, self-reported weak skills and preferences across sessions.
 
-- **Retrieval with Post-Planning Allocation**  
-Retrieves a large candidate pool of interview problems with hybrid RAG, then enforces joint skill and difficulty constraints during later planning.
+- **Feedback loop**  
+Feedback updates skill weights with a deterministic rule, filters already-done questions out of retrieval, and re-plans only the remaining days (today and finished questions are never moved).
 
-- **LangChain + Qdrant Agentic RAG**  
-Uses OpenAI embeddings, Qdrant vector search, BM25 keyword retrieval, metadata filtering, fallback search, and an optional agentic retrieval controller over a normalized interview-question knowledge base.
+- **LangChain + Qdrant hybrid / agentic RAG**  
+OpenAI embeddings, Qdrant vector search, BM25 keyword retrieval, metadata filtering, and a controlled agentic retrieval loop over a normalized question bank of about 2.9K questions.
 
-- **Structured Study Plans**  
-Generates executable interview preparation plans based on user preference (e.g., 7 / 14 / 30-day schedules).
-
-- **Retrieval Evaluation**  
-Includes official job-posting-grounded evaluation cases and a script for label-based Recall@K, Precision@K, MRR@K, NDCG@K, category hit rate, skill hit rate, and duplicate rate.
+- **Evaluation**  
+Retrieval metrics (Precision@K, Recall@K, NDCG@K, duplicate rate), a tool-calling evaluation for the controller (success rate on dev and held-out cases), a plan-quality evaluation, and deterministic tests for re-planning, the controller graph and the Streamlit demo.
 
 ## 🏗️ Architecture
 
-### Agent 1 — Skill Extraction & Weighting
-
-* `scripts/Agent1/input_analyzer.py`: Extracts data-science technical skill signals from the job description and the user's self-description using an LLM.
-* `scripts/Agent1/skill_mapper.py`: Maps extracted skill keywords to the project's predefined taxonomy skills via an LLM-assisted matching step.
-* `scripts/Agent1/weight_allocator.py`: Assigns a weight to each taxonomy skill based on frequency and requirement strength (e.g., must-have vs. preferred).
-* `scripts/Agent1/skill_analyzer_agent.py`: Orchestrates the Agent 1 pipeline and outputs the final skill–weight profile.
-* Agent 1 now routes LLM calls through `scripts/langchain_llm.py`, while preserving the original extraction, mapping, and weighting logic.
-
-### Scope Planner — Global Plan Constraints
-
-* `scripts/scope_planner_agent.py`: Determines the overall preparation scope, i.e. total questions, difficulty distribution, and per-skill quotas, given skill weights, time budget, and user constraints.
-* The Scope Planner also uses the shared LangChain LLM helper, but its allocation behavior is intentionally unchanged.
-
-### Agent 2 — Retrieval
-
-* `scripts/Agent2/langchain_retrieval.py`: Base retriever that searches the normalized knowledge base using Qdrant dense vector search, BM25 keyword search, metadata filtering, fallback search, and deterministic reranking.
-* `scripts/Agent2/agentic_retrieval.py`: Controlled agentic RAG wrapper that uses an LLM to plan multiple retrieval queries, calls the base retriever as a tool, checks coverage, retries when needed, and merges candidates.
-* Agent 2 now returns an over-retrieved candidate pool instead of treating retrieval output as the final selected questions.
-
-### Agent 3 — Planning & Scheduling
-
-* `scripts/Agent3/Planning_Agent.py`: Selects final tasks from the Agent 2 candidate pool, then generates a day-by-day study plan under skill quota, difficulty, workload, and spacing constraints.
-* The planner preserves retrieval metadata such as retrieval score, adjusted score, requested skill, requested quota, and selection reason.
-* Core task selection and scheduling are deterministic; the LLM is used only for controlled swap review and summary polishing.
-
-## 🔁 Current End-To-End Flow
-
 ```text
-User JD + user profile
-        |
-        v
-Agent 1: extract skills and map them to taxonomy labels
-        |
-        v
-Scope Planner: decide total questions, difficulty distribution, and skill quotas
-        |
-        v
-Agent 2: retrieve candidate questions with controlled agentic RAG over Qdrant + BM25
-        |
-        v
-Agent 3: select final questions using quotas and difficulty targets
-        |
-        v
-Agent 3: schedule selected questions across study days
-        |
-        v
-LLM: optional swap review and summary polishing
-        |
-        v
-Final study plan
+              START
+                ↓
+        plan already exists?
+       no ↙            ↘ yes
+Agent1 → Scope →        controller (LLM + tools) ⇄ tools      ReAct loop, ≤ 5 tool calls per turn
+Agent2 → Agent3          ↓ no more tool calls
+       ↓                END
+      END
+(every step is saved by the checkpointer: short-term memory)
 ```
+
+### Controller agent
+
+* `scripts/controller/graph.py`: the LangGraph graph. First turn → fixed pipeline; later turns → a ReAct controller (`bind_tools`, native function calling) looping with a `ToolNode`.
+* Guardrails in code: at most 5 tool calls per turn, `analyze_skills` / `generate_plan` at most once per turn, no parallel tool calls, tool errors returned to the LLM.
+* Context management: the LLM sees a compact view (today's and the next two days' numbered questions, progress, weak skills, preferences) instead of the full plan; tools return short summaries while full results stay in the state; earlier turns are trimmed.
+* `prompts/controller_system.txt`: decision table for when to use which tool and when not to call a tool.
+
+### Tools (`scripts/controller/tools.py`)
+
+| Tool | Wraps | Used when |
+|---|---|---|
+| `analyze_skills` | Agent 1 | the target role or JD changes |
+| `retrieve_questions` | Agent 2 | more candidate questions are needed |
+| `generate_plan` | Scope Planner + Agent 2 + Agent 3 | full re-plan |
+| `update_plan` | `scripts/controller/replan.py` (rules, no LLM) | results, weak skills, days left, daily load |
+
+Date arithmetic (`interview_day` → study days) and id resolution are done in code, not by the LLM.
+
+### Memory
+
+* Short-term: LangGraph `SqliteSaver` (`.state/checkpoints.db`), one thread per preparation session.
+* Long-term: `scripts/controller/memory.py` (`.state/long_term.db`): `feedback_log` (done / wrong / struggling per question and skill) and `preferences`.
+* `scripts/controller/feedback.py`: weights are recomputed from Agent 1's base weights × a factor per skill (×1.5 weak, ×0.8 mastered, from the last 5 records), then renormalized.
+
+### Pipeline modules
+
+* **Agent 1** (`scripts/Agent1/`): extracts skills from the JD and the user profile with an LLM, maps them to the taxonomy, and assigns weights; weights are adjusted by the user's history.
+* **Scope Planner** (`scripts/scope_planner_agent.py`): total questions, difficulty mix and per-skill quotas; quotas are capped by how many questions the bank has for each skill and by a 35% max share.
+* **Agent 2** (`scripts/Agent2/`): hybrid Qdrant + BM25 retrieval with an optional agentic RAG loop (query planning, coverage check, retry); only candidates labelled with the requested skill and not yet done by the user are kept.
+* **Agent 3** (`scripts/Agent3/Planning_Agent.py`): greedy selection by quota and difficulty targets, then `schedule()`: balanced daily counts with a lighter review day, at most one hard question per day, easy → medium ramp. The LLM only writes the daily summaries. `update_plan` reuses the same `schedule()`.
 
 ## 🔄 Upgrade Summary
 
@@ -170,16 +158,16 @@ After:
 preserve retrieval metadata
 build plan constraints
 select_final_tasks()
-constraint_schedule_tasks()
+schedule()            # replaced constraint_schedule_tasks() and the LLM swap review
 deterministic summaries
-optional LLM swap review and polished summaries
+optional LLM-polished summaries
 ```
 
 Benefits:
 
 - Agent 3 receives `skill_plan`, `difficulty_distribution`, `jd_text`, and `user_desc`.
 - Final task selection uses skill quota, difficulty targets, retrieval relevance, direct skill match, and deduplication.
-- Scheduling considers daily workload, max questions per day, max hard questions per day, max skills per day, and hard-question spacing.
+- Scheduling balances the number of questions per day (lighter last day for review), allows at most one hard question per day, and ramps difficulty from easy to medium.
 - Deterministic summaries are always generated before optional LLM polishing.
 
 ### LangChain Unification
@@ -406,9 +394,51 @@ pip install -r requirements.txt
 python -m streamlit run demo.py
 ```
 
+- If Qdrant Cloud is not reachable, use the local vector store in `knowledge_base/vectorstores/`:
+```bash
+QDRANT_URL= python -m streamlit run demo.py
+```
+
+- Demo flow: create a plan (pipeline progress is shown step by step) → mark today's questions done / wrong → tell the assistant what happened ("我实在不会 SQL 窗口函数", "面试提前到后天了") and watch the tool calls and the updated plan → "模拟：进入下一天" moves the plan one day forward for demo purposes.
+
+- Terminal chat with the controller (shows every tool call):
+```bash
+python -m scripts.controller.graph <thread_id>
+```
+
+- Tests (no API key needed):
+```bash
+python tests/test_replan.py      # re-planning rules
+python tests/test_controller.py  # graph wiring and guardrails, scripted LLM
+python tests/test_demo.py        # Streamlit demo end to end (AppTest), scripted LLM
+```
+
 ## 📊 Evaluation
 
-The project includes a retrieval-focused evaluation setup.
+Three evaluations: retrieval quality (below), controller tool calling, and plan quality.
+
+### Tool-Calling Evaluation (controller)
+
+```bash
+python eval/evaluate_tool_calling.py --repeats 3
+python eval/evaluate_tool_calling.py --cases eval/tool_calling_holdout.json --repeats 3
+```
+
+* 22 dev cases and 8 held-out cases, all starting from the same fixture plan; the controller uses the real LLM, retrieval and pipeline modules are faked so only the controller's decisions are scored.
+* A case passes when the tool sequence is exactly right (no tool for explanations, vague requests and chit-chat), key arguments are right, and `update_plan` sets no plan-shape argument the user did not ask for.
+* Results (gpt-4o-mini, 3 repeats): dev 100% (66/66); held-out 79.2% on its first run, 83.3% at the end (it was used for diagnosis, so this is optimistic). The full iteration history is in `optimize.md`.
+
+### Plan Quality Evaluation
+
+```bash
+QDRANT_URL= python eval/evaluate_plan_quality.py --label after
+```
+
+Runs the real pipeline on 6 JDs and reports skill match rate, max skill share, quota over supply, daily count range, difficulty gap and latency. Before → after the planner simplification: skill match 0.856 → 1.000, quota over supply 12.2% → 0%, daily range 4.67 → 3.50, 51.9 s → 48.4 s per plan.
+
+### Retrieval Evaluation
+
+The retrieval evaluation setup:
 
 ### Evaluation Data
 
@@ -566,8 +596,10 @@ GCP Cloud Run
         |-- Qdrant Cloud
         |
         v
-Streamlit multi-agent app
+Streamlit app
 ```
+
+Note: the current version keeps short-term and long-term memory in local SQLite files under `.state/`. Cloud Run containers are stateless, so before deploying, both stores should move to a managed database (for example Postgres with LangGraph's `PostgresSaver`); otherwise plans and memory are lost when a container restarts. The demo also uses a single local user (`default_user`).
 
 Cloud Run should not depend on the local Qdrant folder. Instead, upload the vector collection to Qdrant Cloud once, then let the deployed app connect to Qdrant Cloud with environment variables.
 
