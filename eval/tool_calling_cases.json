@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "description": "Tool-calling cases for the controller. Every case starts from the same fixture plan (see build_state in evaluate_tool_calling.py): a 7-day plan, today is day 3. Today's questions in order: lc:SQL_178 Rank Scores, lc:SQL_177 Nth Highest Salary, th:theory_00023 What is classification, th:theory_00138 How to select K for K-means, th:theory_00077 What is gradient boosting trees, lc:SQL_185 Department Top Three Salaries.",
+    "expect_tools": "Exact sequence of tool names the controller must call in this turn; [] means no tool call. also_accept_tools lists other sequences that are equally correct.",
+    "expect_args": "Checks on the first call of each named tool. Ops: includes (list contains all), equals, not_true, nonempty. effective_days_remaining = days_remaining, or the days computed from interview_day (outcome-based). In addition, update_plan must not set days_remaining, interview_day, daily_load or postpone_rest_of_today unless the case expects it.",
+    "placeholders": "{weekday_in_4_days} is replaced at run time by the Chinese weekday name 4 days after today."
+  },
+  "cases": [
+    {"id": "explain_rank_scores", "category": "no_tool: explain", "message": "为什么给我安排了 Rank Scores 这道题？", "expect_tools": []},
+    {"id": "explain_what_first", "category": "no_tool: explain", "message": "今天我应该先做哪道题？", "expect_tools": []},
+    {"id": "explain_progress", "category": "no_tool: explain", "message": "我现在哪个技能的进度最慢？", "expect_tools": []},
+    {"id": "vague_some_wrong", "category": "no_tool: vague", "message": "有几道题做错了", "expect_tools": []},
+    {"id": "vague_adjust", "category": "no_tool: vague", "message": "帮我调整一下计划吧", "expect_tools": []},
+    {"id": "out_of_taxonomy_probability", "category": "no_tool: out of taxonomy", "message": "我概率题很弱", "expect_tools": []},
+    {"id": "out_of_taxonomy_ab_test", "category": "no_tool: out of taxonomy", "message": "A/B testing 我不太会", "expect_tools": []},
+    {"id": "chitchat_thanks", "category": "no_tool: chitchat", "message": "谢谢，今天先这样！", "expect_tools": []},
+
+    {"id": "weak_sql_window", "category": "update: weak skill", "message": "我实在不会 SQL 窗口函数",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"struggling_skills": {"includes": ["sql_window_function"]}, "postpone_rest_of_today": {"not_true": true}}}},
+    {"id": "weak_clustering", "category": "update: weak skill", "message": "聚类相关的题我总是搞不懂",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"struggling_skills": {"includes": ["clustering"]}}}},
+    {"id": "weak_gbdt_english", "category": "update: weak skill", "message": "Gradient boosting still makes no sense to me.",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"struggling_skills": {"includes": ["gradient_boosting"]}}}},
+
+    {"id": "results_by_position", "category": "update: results", "message": "今天第一题做完了，第二题做错了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"question_results": {"equals": {"lc:SQL_178": "done", "lc:SQL_177": "wrong"}}, "postpone_rest_of_today": {"not_true": true}}}},
+    {"id": "results_by_title", "category": "update: results", "message": "Department Top Three Salaries 那道我做错了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"question_results": {"equals": {"lc:SQL_185": "wrong"}}}}},
+
+    {"id": "today_partial_rest_unfinished", "category": "update: postpone today", "message": "今天只做完了前两道，剩下的今天做不完了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"question_results": {"equals": {"lc:SQL_178": "done", "lc:SQL_177": "done"}}, "postpone_rest_of_today": {"equals": true}}}},
+    {"id": "today_none", "category": "update: postpone today", "message": "今天太忙了，今天的题一道都做不了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"postpone_rest_of_today": {"equals": true}}}},
+
+    {"id": "deadline_day_after_tomorrow", "category": "update: time", "message": "面试提前到后天了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"effective_days_remaining": {"equals": 1}}}},
+    {"id": "deadline_more_days", "category": "update: time", "message": "面试推迟了，除了今天我还有 6 天可以准备",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"effective_days_remaining": {"equals": 6}}}},
+    {"id": "deadline_weekday", "category": "update: time", "message": "面试改到{weekday_in_4_days}了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"effective_days_remaining": {"equals": 3}}}},
+
+    {"id": "daily_load", "category": "update: daily load", "message": "我每天最多只能做 4 道题",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"daily_load": {"equals": 4}}}},
+
+    {"id": "combined_wrong_and_deadline", "category": "update: combined", "message": "第二题做错了，而且面试提前到后天了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"question_results": {"equals": {"lc:SQL_177": "wrong"}}, "effective_days_remaining": {"equals": 1}}}},
+
+    {"id": "pool_short_sql_join", "category": "multi-step: pool short", "message": "SQL 的 join 我很弱，多给我一些练习",
+     "expect_tools": ["update_plan", "retrieve_questions", "update_plan"],
+     "also_accept_tools": [["retrieve_questions", "update_plan"]],
+     "note": "The user explicitly asks for more practice, so retrieving first and then re-planning is also correct (and one call shorter).",
+     "expect_args": {"update_plan": {"struggling_skills": {"includes": ["sql_join"]}}, "retrieve_questions": {"skills": {"nonempty": true}}}},
+
+    {"id": "new_role", "category": "multi-step: new role", "message": "我改投机器学习工程师了，新的 JD 是：负责推荐系统和排序模型的训练与上线，要求熟悉 Python、深度学习和特征工程。",
+     "expect_tools": ["analyze_skills", "generate_plan"],
+     "expect_args": {"analyze_skills": {"jd": {"nonempty": true}}}}
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "description": "Held-out cases: written after prompt tuning on tool_calling_cases.json and never used to change the prompt. Same fixture plan and rules as tool_calling_cases.json."
+  },
+  "cases": [
+    {"id": "ho_explain_later_question", "category": "no_tool: explain", "message": "Human Traffic of Stadium 为什么排在后面几天？", "expect_tools": []},
+    {"id": "ho_ack", "category": "no_tool: chitchat", "message": "嗯嗯，好的", "expect_tools": []},
+    {"id": "ho_result_correct", "category": "update: results", "message": "Nth Highest Salary 我做对了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"question_results": {"equals": {"lc:SQL_177": "done"}}}}},
+    {"id": "ho_postpone_english", "category": "update: postpone today", "message": "I won't have time for the rest of today's questions.",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"postpone_rest_of_today": {"equals": true}}}},
+    {"id": "ho_only_tomorrow", "category": "update: time", "message": "我只剩明天一天可以准备了",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"effective_days_remaining": {"equals": 1}}}},
+    {"id": "ho_daily_three", "category": "update: daily load", "message": "我想每天做 3 道就好",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"daily_load": {"equals": 3}}}},
+    {"id": "ho_weak_trees", "category": "update: weak skill", "message": "决策树那块我也不太懂",
+     "expect_tools": ["update_plan"],
+     "expect_args": {"update_plan": {"struggling_skills": {"includes": ["decision_trees"]}}}},
+    {"id": "ho_weak_nlp_maps", "category": "update: weak skill", "message": "NLP 方向的文本分类我不太会",
+     "expect_tools": ["update_plan"],
+     "also_accept_tools": [["update_plan", "retrieve_questions", "update_plan"], ["retrieve_questions", "update_plan"]],
+     "expect_args": {"update_plan": {"struggling_skills": {"includes": ["text_classification"]}}}}
+  ]
+}
